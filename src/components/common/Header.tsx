@@ -2,7 +2,6 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import LogoBlueOc from "/assets/images/blueoc.svg"
 
-import NotiButton from "@/components/notifications/NotiButton"
 import { Button } from "@/components/ui/button"
 import { ColorModeButton, useColorModeValue } from "@/components/ui/color-mode"
 import {
@@ -12,7 +11,6 @@ import {
   MenuTrigger,
 } from "@/components/ui/menu"
 import { Box, Flex, Image, Text } from "@chakra-ui/react"
-import { useSocket } from "../../context/SocketContext.tsx"
 import UserMenu from "./UserMenu.tsx"
 
 const LANGUAGES = [
@@ -29,7 +27,6 @@ const LANGUAGES = [
 ]
 
 export default function Header() {
-  const { socket } = useSocket()
   const { i18n } = useTranslation()
   const menuBgColor = useColorModeValue("ui.secondary", "gray.800")
   const secBgColor = useColorModeValue("ui.light", "ui.darkSlate")
@@ -88,7 +85,6 @@ export default function Header() {
           </MenuRoot>
         </Box>
         <ColorModeButton rounded="full" />
-        <NotiButton socket={socket} />
         <UserMenu />
       </Flex>
     </Box>
