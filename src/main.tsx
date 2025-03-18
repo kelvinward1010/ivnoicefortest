@@ -9,7 +9,6 @@ import { RouterProvider, createRouter } from "@tanstack/react-router"
 import axios from "axios"
 import { StrictMode } from "react"
 import { OpenAPI } from "./client"
-import { SocketProvider } from "./context/SocketContext"
 
 OpenAPI.BASE = import.meta.env.VITE_API_URL
 OpenAPI.WITH_CREDENTIALS = true
@@ -46,12 +45,10 @@ declare module "@tanstack/react-router" {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <SocketProvider>
       <Provider>
         <QueryClientProvider client={queryClient}>
           <RouterProvider router={router} />
         </QueryClientProvider>
       </Provider>
-    </SocketProvider>
   </StrictMode>,
 )
