@@ -1,0 +1,271 @@
+{
+  "components": {
+    "accounts": {
+      "accountDetails": {
+        "AccountInfor": {
+          "account_error_data_accountInfor": "No data",
+          "copy_success": "Copy Success",
+          "copy_failed": "Copy Failed",
+          "title": "Account Informations",
+          "account_name": "Account Name",
+          "phone": "Phone Number",
+          "company_name": "Company Name",
+          "tax_code": "Tax Code",
+          "representative": "Representative",
+          "representative_email": "Representative Email",
+          "address": "Address",
+          "email": "Email",
+          "account_manager_named": "Account Manager Name",
+          "post_code": "Post Code",
+          "representative_phone": "Representative Phone",
+          "receive_invoice_email": "Receive Invoice Email",
+          "description": "Description"
+        },
+        "OverdueInvoices": {
+          "name": "Invoice Overdue",
+          "invoice": "Overdue Invoice Name",
+          "title": "Overdue Invoices"
+        },
+        "ProjectOverview": {
+          "name": "Project Name",
+          "status": "Status",
+          "detail": "Detail",
+          "title": "Projects List"
+        }
+      },
+      "accounDetails": {
+        "account_error_data_detail": "No data"
+      },
+      "forms": {
+        "AccountFormCreate": {
+          "successMessage": "Account created successfully",
+          "errorMessageForExistingEmail": "This email is already in use",
+          "buttonTitle": "Add",
+          "title": "New account information",
+          "closeModalTitle": "Unsaved changes",
+          "closeModalBodyFirstLine": "Are you sure you want to Leave this page?",
+          "closeModalBodySecondLine": "Changes you made will not be saved.",
+          "closeModalLeaveButton": "Leave Page",
+          "submitModalTitle": "Create new account",
+          "submitModalBodyFirstLine": "Are you sure you want to create a new account?",
+          "submitModalBodySecondLine": "A new account will be created",
+          "submitModalConfirmButton": "Create",
+          "buttonSubmitTitle": "Create"
+        },
+        "AccountFormUpdate": {
+          "successMessage": "Account updated successfully",
+          "title": "Edit Account Information",
+          "closeModalTitle": "Unsaved changes",
+          "closeModalBodyFirstLine": "Are you sure you want to Leave this page?",
+          "closeModalBodySecondLine": "Changes you made will not be saved.",
+          "closeModalLeaveButton": "Leave Page",
+          "submitModalTitle": "Update account information",
+          "submitModalBodyFirstLine": "Are you sure you want to update this account?",
+          "submitModalBodySecondLine": "Changes you made will be saved.",
+          "submitModalConfirmButton": "Update",
+          "buttonSubmitTitle": "Update"
+        }
+      }
+    },
+    "common": {
+      "AlertModal": {
+        "cancelButton": "Cancel"
+      },
+      "SidebarItems": {
+        "dashboard": "Dashboard",
+        "account": "Account",
+        "project": "Project",
+        "timesheet": "Timesheet",
+        "expense": "Expense",
+        "invoice": "Invoice"
+      },
+      "UserMenu": {
+        "setting": "Setting",
+        "logout": "Log out"
+      }
+    },
+    "driver": {
+      "title": "Document Management",
+      "actions": {
+        "create_folder": "Create Folder",
+        "upload_file": "Upload File"
+      },
+      "status": {
+        "create_success": "Create folder successfully.",
+        "create_failed": "Failed to create folder.",
+        "upload_success": "Upload file successfully.",
+        "upload_failed": "Failed to upload file.",
+        "delete_success": "Delete successfully.",
+        "delete_failed": "Failed to delete file or folder.",
+        "rename_success": "Change name successfully.",
+        "rename_failed": "Failed to rename file or folder."
+      }
+    },
+    "projects": {
+      "forms": {
+        "ProjectFormCreate": {
+          "successMessage": "Project created successfully",
+          "buttonTitle": "Add",
+          "title": "New project information",
+          "closeModalTitle": "Unsaved Changes",
+          "closeModalBodyFirstLine": "Are you sure you want to Leave this page?",
+          "closeModalBodySecondLine": "Changes you made will not be saved.",
+          "closeModalLeaveButton": "Leave Page",
+          "submitModalTitle": "Confirm to create new project",
+          "submitModalBodyFirstLine": "Are you sure you want to create this project?",
+          "submitModalBodySecondLine": "A new draft project will be created.",
+          "submitModalConfirmButton": "Confirm",
+          "buttonSubmitTitle": "Add"
+        },
+        "ProjectFormUpdate": {
+          "successMessage": "Project updated successfully",
+          "title": "Edit project information",
+          "closeModalTitle": "Unsaved Changes",
+          "closeModalBodyFirstLine": "Are you sure you want to Leave this page?",
+          "closeModalBodySecondLine": "Changes you made will not be saved.",
+          "closeModalLeaveButton": "Leave Page",
+          "submitModalTitle": "Confirm to update project",
+          "submitModalBodyFirstLine": "Are you sure you want to update this project?",
+          "submitModalBodySecondLine": "Project will be updated and cannot be reverted.",
+          "submitModalConfirmButton": "Confirm",
+          "buttonSubmitTitle": "Update"
+        }
+      }
+    },
+    "sow": {
+      "AddResource": {
+        "stt_column_name": "No",
+        "resource_column_name": "Resource",
+        "price_column_name": "Unit Price",
+        "manmonth_column_name": "Total Man Month",
+        "total_money_column_name": "Total Money",
+        "notes_column_name": "Notes",
+        "action": "Actions",
+        "confirm_delete_title": "Are you sure you want to delete?",
+        "confirm_delete_body_title": "Data will be lost permanently.",
+        "confirm_delete_cancel_button": "Cancel",
+        "confirm_delete_agree_button": "Agree",
+        "add_resource_button": "Add Resource",
+        "add_resource_form_label_name": "Resource Allocation",
+        "resource_label": "Resource",
+        "price_label": "Unit Price",
+        "manmonth_label": "Total Man Month",
+        "total_money_label": "Total Money",
+        "note_label": "Note",
+        "note_placeholder": "Note",
+        "save_button": "Save"
+      }
+    }
+  },
+  "frontend": {
+    "src": {
+      "main": {
+        "Unauthorized": "Unauthorized: Please log in to continue",
+        "Forbidden": "Forbidden: You don't have permision to access"
+      }
+    }
+  },
+  "common": {
+    "BaseTable": {
+      "table_actions": "Actions",
+      "table_no_data": "No data"
+    },
+    "EmpytState": {
+      "empyState_no_data": "No data",
+      "empyState_check_file": ""
+    }
+  },
+  "routes": {
+    "_layout": {
+      "account": {
+        "$id": {
+          "account_management_title": "Accounts",
+          "account_detail_title": "Details"
+        },
+        "account-management": {
+          "maxImportantItem_error": "You can only pin 5 accounts",
+          "importantItem_error": "Important Error",
+          "account_name": "Account name",
+          "account_manager_name_id": "Account Manager Name",
+          "email": "Email",
+          "overdue_invoice": "Overdue Invoice",
+          "title": "Account Management",
+          "delete_project_success": "Project deleted successfully.",
+          "delete_project_failed": "Only projects with status 'DRAFT' can be deleted."
+        }
+      },
+      "project": {
+        "$id": {
+          "project_management_title": "Project",
+          "project_detail_title": "Project Detail"
+        },
+        "project-management": {
+          "maxImportantItem_error": "You can only pin 5 projects",
+          "importantItem_error": "Important Error",
+          "account_name": "Account Name",
+          "project_name": "Project Name",
+          "pm_name": "PM Name",
+          "status": "Status",
+          "start_date": "Start Date",
+          "end_date": "End Date",
+          "next_invoice_date": "Next Invoice Date",
+          "confirm_delete_title": "Are you sure you want to Delete?",
+          "confirm_delete_body": "Project cannot be recovered",
+          "confirm_delete_second_line": "The project will be deleted",
+          "confirm_delete_button": "Agree",
+          "filter_status_placeholder": "Select status"
+        },
+        "project-management_title": "Project Management"
+      },
+      "sow": {
+        "CreateSow": {
+          "confirm_cancel_title": "Are you sure you want to leave?",
+          "confirm_cancel_body_first_line": "Your action is not completed",
+          "confirm_cancel_body_second_line": "Data not saved will be lost",
+          "confirm_cancel_leave_button": "Agree",
+          "toast_create_sow_success": "SOW is successfully created",
+          "toast_create_sow_error": "SOW is not successfully created",
+          "duration_sow_start_rule": "Start date for duration time is required",
+          "duration_sow_end_rule": "End date for duration time is required",
+          "extend_sow_rule": "Extend SOW is required",
+          "day_duration_sow": "day",
+          "days_duration_sow": "days",
+          "months_duration_sow": "months",
+          "month_duration_sow": "month",
+          "invoice_name_label": "Invoice of",
+          "add_sow_button": "Create a new SOW",
+          "upload_sow_title": "create new statement of work",
+          "project_name_label": "Project Name",
+          "account_name_label": "Account Name",
+          "sow_type_label": "Type of SOW",
+          "select_sow_type_placeholder": "Select type of sow",
+          "signed_parties_label": "Signed Parties",
+          "signed_parties_checkbox_value": "On-Shore",
+          "manday_label": "Total Man Day",
+          "manmonth_label": "Total Man Month",
+          "currency_label": "Currency Unit",
+          "select_currency_unit_placeholder": "Select currency unit",
+          "duration_sow_label": "Duration of SOW",
+          "duration_from_label": "From",
+          "duration_to_label": "To",
+          "invoice_period_label": "Invoice Period",
+          "select_invoice_period_label": "Select invoice period",
+          "extend_sow_label": "Extend SOW",
+          "next_invoice_label": "Next Invoice Date",
+          "invoice_date_details_title": "Invoice Date Details",
+          "invoice_date_list_title": "Invoice Date List",
+          "confirm_delete_invoice_date_title": "Are you sure you want to delete this invoice?",
+          "confirm_delete_invoice_date_body": "Data will be deleted permanently.",
+          "confirm_delete_invoice_date_cancel_button": "Cancel",
+          "confirm_delete_invoice_date_agree_button": "Agree",
+          "no_results_found": "No results founded",
+          "description_of_sow_label": "Description",
+          "placeholder_description_of_sow": "Description",
+          "drag_drop_zone_label": "Drag and drop file to upload",
+          "file_type_label": ".png, .jpg, .doc, .pdf, .xls, .xlsx, ...",
+          "save_button": "Save"
+        }
+      }
+    }
+  }
+}

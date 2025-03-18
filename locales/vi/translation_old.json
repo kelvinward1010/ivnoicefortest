@@ -1,0 +1,216 @@
+{
+  "components": {
+    "Common": {
+      "Header": {
+        "select_language": "Ngôn ngữ"
+      },
+      "CloseModal": {
+        "title": "Những thay đổi chưa được lưu",
+        "bodyFirstLine": "Bạn có chắc là bạn muốn rời khỏi trang này?",
+        "bodySecondLine": "Những thay đổi bạn đã thực hiện sẽ không được lưu.",
+        "leaveButton": "Rời khỏi",
+        "cancelButton": ""
+      }
+    },
+    "SidebarItems": {
+      "dashboard": "Trang chủ",
+      "account": "Tài khoản",
+      "project": "Dự án",
+      "timesheet": "Bảng chấm công",
+      "expense": "Chi phí",
+      "invoice": "Hóa đơn"
+    },
+    "UserMenu": {
+      "setting": "Cài đặt",
+      "logout": "Đăng xuất"
+    },
+    "account": {
+      "forms": {
+        "AccountFormUpdate": {
+          "successMessage": "Cập nhật tài khoản thành công",
+          "warningMessageForRequiredFields": "Vui lòng điền đầy đủ thông tin bắt buộc",
+          "warningMessageForOptionalFields": "Vui lòng không để bất kì trường nào chưa kí tự trống",
+          "title": "Chỉnh sửa thông tin tài khoản",
+          "closeModalTitle": "Những thay đổi chưa được lưu",
+          "closeModalBodyFirstLine": "Bạn có chắc bạn muốn rời khỏi trang này không?",
+          "closeModalBodySecondLine": "Những thay đổi bạn đã thực hiện sẽ không được lưu.",
+          "closeModalLeaveButton": "Rời khỏi trang",
+          "buttonSubmitTitle": "Cập nhật"
+        },
+        "AccountFormCreate": {
+          "successMessage": "Tạo mới tài khoản thành công",
+          "errorMessageForExistingEmail": "Email này đã được sử dụng",
+          "warningMessageForRequiredFields": "Vui lòng điền đầy đủ thông tin bắt buộc",
+          "warningMessageForOptionalFields": "Vui lòng không để bất kì trường nào chưa kí tự trống",
+          "buttonTitle": "Thêm",
+          "title": "Thông tin tài khoản mới",
+          "closeModalTitle": "Những thay đổi chưa được lưu",
+          "closeModalBodyFirstLine": "Bạn có chắc bạn muốn rời khỏi trang này không?",
+          "closeModalBodySecondLine": "Những thay đổi bạn đã thực hiện sẽ không được lưu.",
+          "closeModalLeaveButton": "Rời khỏi trang",
+          "submitModalTitle": "",
+          "submitModalBodyFirstLine": "",
+          "submitModalBodySecondLine": "",
+          "submitModalConfirmButton": "",
+          "buttonSubmitTitle": "Tạo mới"
+        }
+      }
+    },
+    "project": {
+      "forms": {
+        "ProjectFormCreate": {
+          "successMessage": "Tạo dự án thành công"
+        },
+        "ProjectFormUpdate": {
+          "successMessage": "Cập nhật án thành công"
+        }
+      }
+    },
+    "accounts": {
+      "forms": {
+        "AccountFormCreate": {
+          "warningMessageForRequiredFields": "Vui lòng điền vào tất cả các trường cần thiết",
+          "warningMessageForOptionalFields": "Xin đừng để bất kỳ trường nào trống"
+        },
+        "AccountFormUpdate": {
+          "warningMessageForRequiredFields": "Vui lòng điền tất cả các trường bắt buộc",
+          "warningMessageForOptionalFields": "Vui lòng không để trống bất kỳ trường nào"
+        }
+      }
+    }
+  },
+  "Account": {
+    "accountdetail": {
+      "AccountInfo": {
+        "account-error-data": "Không có dữ liệu chi tiết tài khoản."
+      },
+      "account-error-data": "Không có dữ liệu chi tiết tài khoản."
+    },
+    "account-Detail": {
+      "account-Info": "Thông Tin Tài Khoản",
+      "account_name": "Tên Tài Khoản",
+      "phone": "Số Điện Thoại",
+      "company_name": "Tên Công Ty",
+      "tax_code": "Số Thuế",
+      "representative": "Người Đại Diện",
+      "representative_email": "Email Người Đại Diện",
+      "address": "Địa Chỉ",
+      "email": "Email",
+      "account_manager_named": "Tên Quản Lý",
+      "post_code": "Mã Biêu Điện",
+      "representative_phone": "SĐT Người Đại Diện",
+      "receive_invoice_email": "Email Hóa Đơn",
+      "description": "Mô Tả",
+      "overview-invoice": "Hóa Đơn Hết Hạn",
+      "overview-invoice_name": "Tên Hóa Đơn Tổng",
+      "project-overview": "Tổng Quan Dự Án",
+      "name": "Tên Dự Án",
+      "status": "Trạng Thái",
+      "detail": "Chi Tiết"
+    }
+  },
+  "account": {
+    "accountdetail": {
+      "AccountInfo": {
+        "account_error_data_accountInfo": "Không có dữ liệu",
+        "copy_success": "Copy thành công",
+        "copy_failed": "Copy thất bại",
+        "account_name": "Tên tài khoản",
+        "phone": "Số điện thoại",
+        "company_name": "Tên công ty",
+        "tax_code": "Số thuế",
+        "representative": "Người đại diện",
+        "representative_email": "Email người đại diện",
+        "address": "Địa chỉ",
+        "email": "Email",
+        "account_manager_named": "Tên quản lý",
+        "post_code": "Số bưu chính",
+        "representative_phone": "SĐT người đại diện",
+        "receive_invoice_email": "Email hóa đơn",
+        "description": "Mô tả"
+      },
+      "Account_Info": "Thông Tin Tài Khoản",
+      "OverviewInvoice": {
+        "Overview_Invoice_Title": "Tổng Quan Hóa Đơn",
+        "overview_invoice_name": "Tên hóa đơn",
+        "overview_invoice": "Hóa đơn"
+      },
+      "ProjectOverview": {
+        "Project_Overview_Title": "Tổng Quan Dự Án",
+        "name": "Tên dự án",
+        "status": "Trạng thái",
+        "detail": "Chi tiết"
+      },
+      "forms": {
+        "CloseModal": {
+          "title": "Những thay đổi chưa được lưu",
+          "bodyFirstLine": "Bạn có chắc là bạn muốn rời khỏi trang này?",
+          "bodySecondLine": "Những thay đổi bạn đã thực hiện sẽ không được lưu.",
+          "cancelButton": "Hủy bỏ",
+          "leaveButton": "Rời khỏi"
+        }
+      }
+    }
+  },
+  "accounts": {
+    "accountdetail": {
+      "account_error_data_detail": "Không có dữ liệu"
+    },
+    "accountDetails": {
+      "AccountInfor": {
+        "account_error_data_accountInfo": "Không có dữ liệu"
+      }
+    }
+  },
+  "routes": {
+    "_layout": {
+      "sow": {
+        "CreateSow": {
+          "confirm_cancel_body_second_line": "",
+          "confirm_cancel_leave_button": ""
+        }
+      },
+      "account": {
+        "account-management": {
+          "confirm_detele_title": "Bạn có chắc chắn muốn xóa không?",
+          "confirm_cancel_body_second_line": "Dữ liệu chưa được lưu sẽ bị mất",
+          "confirm_cancel_leave_button": "Đồng ý",
+          "phone_number": "Số điện thoại",
+          "delete_success": "Xóa tài khoản thành công",
+          "delete_error": "Xóa tài khoản thất bại",
+          "confirm_delete_title": "Bạn có chắc chắn muốn xóa không ",
+          "confirm_delete_body": "Tài khoản không thể khôi phục",
+          "confirm_delete_second_line": "Tài khoản sẽ bị mất ",
+          "confirm_delete_button": "Đồng ý",
+          "account_title": "Tài khoản",
+          "importantitem_error": "Ghim thất bại",
+          "overdue-invoice": "Hóa đơn quá hạn"
+        }
+      },
+      "project": {
+        "project-management": {
+          "project_title": "Dự án"
+        }
+      }
+    }
+  },
+  "Common": {
+    "BaseTable": {
+      "table_actions": "Chức năng",
+      "table_no_data": "Không có dữ liệu",
+      "table_check_filter": "kiểm tra lại dữ liệu"
+    },
+    "EmpytState": {
+      "empyState_no_data": "Không có dữ liệu."
+    },
+    "projects": {
+      "forms": {
+        "ProjectFormCreate": {
+          "warningMessageForRequiredFields": "",
+          "warningMessageForOptionalFields": "",
+          "submitModalLeaveButton": ""
+        }
+      }
+    }
+  }
+}

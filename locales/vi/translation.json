@@ -1,0 +1,271 @@
+{
+  "components": {
+    "accounts": {
+      "accountDetails": {
+        "AccountInfor": {
+          "account_error_data_accountInfor": "Không có dữ liệu",
+          "copy_success": "Copy thành công",
+          "copy_failed": "Copy thất bại",
+          "title": "Thông Tin Tài Khoản",
+          "account_name": "Tên tài khoản",
+          "phone": "Số điện thoại",
+          "company_name": "Tên công ty",
+          "tax_code": "Số thuế",
+          "representative": "Người đại diện",
+          "representative_email": "Email người đại diện",
+          "address": "Địa chỉ",
+          "email": "Email",
+          "account_manager_named": "Tên quản lý",
+          "post_code": "Số bưu chính",
+          "representative_phone": "SĐT người đại diện",
+          "receive_invoice_email": "Email hóa đơn",
+          "description": "Mô tả"
+        },
+        "OverdueInvoices": {
+          "name": "Tên hóa đơn",
+          "invoice": "Hóa đơn",
+          "title": "Tổng Quan Hóa Đơn"
+        },
+        "ProjectOverview": {
+          "name": "Tên dự án",
+          "status": "Trạng thái",
+          "detail": "Chi tiết",
+          "title": "Tổng Quan Dự Án"
+        }
+      },
+      "accounDetails": {
+        "account_error_data_detail": "Không có dữ liệu"
+      },
+      "forms": {
+        "AccountFormCreate": {
+          "successMessage": "Tài khoản được tạo thành công",
+          "errorMessageForExistingEmail": "Email này đã được đăng kí",
+          "buttonTitle": "Thêm",
+          "title": "Thông tin tài khoản mới",
+          "closeModalTitle": "Những thay đổi chưa được lưu",
+          "closeModalBodyFirstLine": "Bạn có chắc bạn muốn rời khỏi trang này không?",
+          "closeModalBodySecondLine": "Những thay đổi bạn đã thực hiện sẽ không được lưu.",
+          "closeModalLeaveButton": "Rời khỏi trang",
+          "submitModalTitle": "Tạo tài khoản mới",
+          "submitModalBodyFirstLine": "Bạn có chắc chắn muốn tạo một tài khoản mới không?",
+          "submitModalBodySecondLine": "Một tài khoản mới sẽ được tạo",
+          "submitModalConfirmButton": "Tạo",
+          "buttonSubmitTitle": "Tạo"
+        },
+        "AccountFormUpdate": {
+          "successMessage": "Cập nhật tài khoản thành công",
+          "title": "Chỉnh sửa thông tin tài khoản",
+          "closeModalTitle": "Thay đổi chưa được lưu",
+          "closeModalBodyFirstLine": "Bạn có chắc chắn muốn rời khỏi trang này?",
+          "closeModalBodySecondLine": "Những thay đổi bạn đã thực hiện sẽ không được lưu.",
+          "closeModalLeaveButton": "Rời khỏi trang",
+          "submitModalTitle": "Cập nhật thông tin tài khoản",
+          "submitModalBodyFirstLine": "Bạn có chắc chắn muốn cập nhật tài khoản này?",
+          "submitModalBodySecondLine": "Những thay đổi bạn đã thực hiện sẽ được lưu.",
+          "submitModalConfirmButton": "Cập nhật",
+          "buttonSubmitTitle": "Cập nhật"
+        }
+      }
+    },
+    "common": {
+      "AlertModal": {
+        "cancelButton": "Hủy bỏ"
+      },
+      "SidebarItems": {
+        "dashboard": "Trang chủ",
+        "account": "Tài khoản",
+        "project": "Dự án",
+        "timesheet": "Bảng chấm công",
+        "expense": "Chi phí",
+        "invoice": "Hóa đơn"
+      },
+      "UserMenu": {
+        "setting": "Cài đặt",
+        "logout": "Đăng xuất"
+      }
+    },
+    "driver": {
+      "title": "Quản lý tài liệu",
+      "actions": {
+        "create_folder": "Tạo thư mục",
+        "upload_file": "Tải lên tập tin"
+      },
+      "status": {
+        "create_success": "Tạo thư mục thành công.",
+        "create_failed": "Không tạo được thư mục.",
+        "upload_success": "Tải tệp lên thành công.",
+        "upload_failed": "Không tải được tệp lên.",
+        "delete_success": "Xóa thành công.",
+        "delete_failed": "Không xóa được tệp hoặc thư mục.",
+        "rename_success": "Đổi tên thành công.",
+        "rename_failed": "Không đổi được tên tệp hoặc thư mục."
+      }
+    },
+    "projects": {
+      "forms": {
+        "ProjectFormCreate": {
+          "successMessage": "Thêm dự án mới thành công",
+          "buttonTitle": "Thêm",
+          "title": "Thông tin dự án mới",
+          "closeModalTitle": "Những thay đổi chưa được lưu",
+          "closeModalBodyFirstLine": "Bạn có chắc bạn muốn rời khỏi trang này không?",
+          "closeModalBodySecondLine": "Những thay đổi bạn đã thực hiện sẽ không được lưu.",
+          "closeModalLeaveButton": "Rời khỏi",
+          "submitModalTitle": "Xác nhận để tạo dự án mới",
+          "submitModalBodyFirstLine": "Bạn có chắc chắn muốn tạo dự án này không?",
+          "submitModalBodySecondLine": "Một bản nháp của dự án sẽ được tạo",
+          "submitModalConfirmButton": "Xác nhận",
+          "buttonSubmitTitle": "Thêm"
+        },
+        "ProjectFormUpdate": {
+          "successMessage": "Cập nhật thông tin dự án thành công",
+          "title": "Chỉnh sửa thông tin dự án",
+          "closeModalTitle": "Những thay đổi chưa được lưu",
+          "closeModalBodyFirstLine": "Bạn có chắc bạn muốn rời khỏi trang này không?",
+          "closeModalBodySecondLine": "Những thay đổi bạn đã thực hiện sẽ không được lưu.",
+          "closeModalLeaveButton": "Rời khỏi",
+          "submitModalTitle": "Xác nhận cập nhật dự án",
+          "submitModalBodyFirstLine": "Bạn có chắc là bạn muốn cập nhật dự án này không?",
+          "submitModalBodySecondLine": "Dự án sẽ được cập nhật và không thể hoàn tác.",
+          "submitModalConfirmButton": "Cập nhật",
+          "buttonSubmitTitle": "Cập nhật"
+        }
+      }
+    },
+    "sow": {
+      "AddResource": {
+        "stt_column_name": "Số thứ tự",
+        "resource_column_name": "Nhân sự",
+        "price_column_name": "Đơn giá",
+        "manmonth_column_name": "Tháng công",
+        "total_money_column_name": "Tổng tiền",
+        "notes_column_name": "Lưu ý",
+        "action": "Hành động",
+        "confirm_delete_title": "Bạn có chắc chắn muốn xóa không?",
+        "confirm_delete_body_title": "Dữ liệu sẽ bị xóa vĩnh viễn.",
+        "confirm_delete_cancel_button": "Hủy",
+        "confirm_delete_agree_button": "Đồng ý",
+        "add_resource_button": "Thêm nhân sự",
+        "add_resource_form_label_name": "Phân bổ nhân sự",
+        "resource_label": "Nhân sự",
+        "price_label": "Đơn giá",
+        "manmonth_label": "Tháng công",
+        "total_money_label": "Tổng tiền",
+        "note_label": "Lưu ý",
+        "note_placeholder": "Lưu ý",
+        "save_button": "Lưu"
+      }
+    }
+  },
+  "frontend": {
+    "src": {
+      "main": {
+        "Unauthorized": "Vui lòng đăng nhập để tiếp tục",
+        "Forbidden": "Bạn không có quyền truy cập"
+      }
+    }
+  },
+  "common": {
+    "BaseTable": {
+      "table_actions": "Chức năng",
+      "table_no_data": "Không có dữ liệu"
+    },
+    "EmpytState": {
+      "empyState_no_data": "Không có dữ liệu.",
+      "empyState_check_file": ""
+    }
+  },
+  "routes": {
+    "_layout": {
+      "account": {
+        "$id": {
+          "account_management_title": "Tài khoản",
+          "account_detail_title": "Chi tiết"
+        },
+        "account-management": {
+          "maxImportantItem_error": "Bạn đã ghim đủ số lượt",
+          "importantItem_error": "Ghim lỗi",
+          "account_name": "Tên tài khoản",
+          "account_manager_name_id": "Tên quản lý",
+          "email": "Email",
+          "overdue_invoice": "Hóa đơn quá hạn",
+          "title": "Quán Lý Tài Khoản",
+          "delete_project_success": "Xóa project thành công",
+          "delete_project_failed": "Xóa project thất bại"
+        }
+      },
+      "project": {
+        "$id": {
+          "project_management_title": "",
+          "project_detail_title": "Chi tiết dự án"
+        },
+        "project-management": {
+          "maxImportantItem_error": "Bạn đã ghim đủ số lượt",
+          "importantItem_error": "Ghim lỗi",
+          "account_name": "Tài Khoản",
+          "project_name": "Dự Án",
+          "pm_name": "QLDA",
+          "status": "Trạng Thái",
+          "start_date": "Ngày Khởi Tạo",
+          "end_date": "Ngày Kết Thúc",
+          "next_invoice_date": "Ngày Hóa Đơn",
+          "confirm_delete_title": "Bạn chắc chắn muốn xóa?",
+          "confirm_delete_body": "Không thể khôi phục project",
+          "confirm_delete_second_line": "Dự án sẽ bị xóa",
+          "confirm_delete_button": "Đồng ý",
+          "filter_status_placeholder": "Chọn trạng thái"
+        },
+        "project-management_title": "Quản lý dự án"
+      },
+      "sow": {
+        "CreateSow": {
+          "confirm_cancel_title": "Bạn có chắc chắn muốn thoát không?",
+          "confirm_cancel_body_first_line": "Hành động này của bạn chưa hoàn thành",
+          "confirm_cancel_body_second_line": "Dữ liệu chưa được lưu sẽ bị mất",
+          "confirm_cancel_leave_button": "Đồng ý",
+          "toast_create_sow_success": "Tạo phụ lục hợp đồng thành công",
+          "toast_create_sow_error": "Tạo phụ lục hợp đồng thất bại",
+          "duration_sow_start_rule": "Thời gian bắt đầu gia hạn là bắt buộc",
+          "duration_sow_end_rule": "Thời gian kết thúc gia hạn là bắt buộc",
+          "extend_sow_rule": "Gia hạn phục lục hợp đồng là bắt buộc",
+          "day_duration_sow": "ngày",
+          "days_duration_sow": "ngày",
+          "months_duration_sow": "tháng",
+          "month_duration_sow": "tháng",
+          "invoice_name_label": "Hóa đơn của tháng",
+          "add_sow_button": "Tạo mới SOW",
+          "upload_sow_title": "Tạo mới phụ lục hợp đồng",
+          "project_name_label": "Tên dự án",
+          "account_name_label": "Tên khách hàng",
+          "sow_type_label": "Loại phụ lục hợp đồng",
+          "select_sow_type_placeholder": "Chọn lọai phụ lục hợp đồng",
+          "signed_parties_label": "Bên ký kết",
+          "signed_parties_checkbox_value": "On-Shore",
+          "manday_label": "Ngày công",
+          "manmonth_label": "Tháng công",
+          "currency_label": "Đơn vị tiền tệ",
+          "select_currency_unit_placeholder": "Chọn đơn vị tiền tệ",
+          "duration_sow_label": "Thời hạn",
+          "duration_from_label": "Từ",
+          "duration_to_label": "Tới",
+          "invoice_period_label": "Chu kỳ",
+          "select_invoice_period_label": "Chọn chu kỳ",
+          "extend_sow_label": "Gia hạn phụ lục hợp đồng từ ngày",
+          "next_invoice_label": "Thời hạn chi trả hóa đơn sắp tới",
+          "invoice_date_details_title": "Chi tiết",
+          "invoice_date_list_title": "Danh sách hóa đơn",
+          "confirm_delete_invoice_date_title": "Bạn có chắc chắn muốn xóa không?",
+          "confirm_delete_invoice_date_body": "Dữ liệu sẽ bị xóa vĩnh viễn",
+          "confirm_delete_invoice_date_cancel_button": "Hủy",
+          "confirm_delete_invoice_date_agree_button": "Đồng ý",
+          "no_results_found": "Không tìm thấy dữ liệu",
+          "description_of_sow_label": "Mô tả",
+          "placeholder_description_of_sow": "Mô tả",
+          "drag_drop_zone_label": "Kéo thả tệp tin để tải lên",
+          "file_type_label": ".png, .jpg, .doc, .pdf, .xls, .xlsx, ...",
+          "save_button": "Lưu"
+        }
+      }
+    }
+  }
+}

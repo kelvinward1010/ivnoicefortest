@@ -1,0 +1,200 @@
+{
+  "components": {
+    "Common": {
+      "Header": {
+        "select_language": "Language"
+      },
+      "CloseModal": {
+        "title": "Unsaved changes",
+        "bodyFirstLine": "Are you sure you want to Leave this page?",
+        "bodySecondLine": "Changes you made will not be saved.",
+        "leaveButton": "Leave page",
+        "cancelButton": ""
+      }
+    },
+    "Account": {
+      "AccountDetail": {
+        "AccountInfo": {
+          "account-error-data": "No Account Details data available"
+        },
+        "account-error-data": "No Account Details data available"
+      },
+      "account-Detail": {
+        "account-Info": "Account Infomation",
+        "account_name": "Account Name",
+        "phone": "Phone",
+        "company_name": "Company Name",
+        "tax_code": "Tax Code",
+        "representative": "Representative",
+        "representative_email": "Representative Email",
+        "address": "Address",
+        "email": "Email",
+        "account_manager_named": "Account Manager Name",
+        "post_code": "Post Code",
+        "representative_phone": "Representative Phone",
+        "receive_invoice_email": "Receive Invoice Email",
+        "description": "Description",
+        "overview-invoice": "Overview Invoice",
+        "overview-invoice_name": "Overview Invoice Name",
+        "project-overview": "Project Overview",
+        "name": "Project Name",
+        "status": "Status",
+        "detail": "Detail"
+      }
+    },
+    "account": {
+      "accountdetail": {
+        "AccountInfo": {
+          "account_error_data_accountInfo": "",
+          "copy_success": "Copy Success",
+          "copy_failed": "Copy Failed",
+          "account_name": "Account Name",
+          "phone": "Phone Number",
+          "company_name": "Company Name",
+          "tax_code": "Tax Code",
+          "representative": "Representative",
+          "representative_email": "Representative Email",
+          "address": "Address",
+          "email": "Email",
+          "account_manager_named": "Account Manager Name",
+          "post_code": "Post Code",
+          "representative_phone": "Representative Phone",
+          "receive_invoice_email": "Receive Invoice Email",
+          "description": "Description"
+        },
+        "Account_Info": "Account Informantion",
+        "OverviewInvoice": {
+          "Overview_Invoice_Title": "Invoice Overview",
+          "overview_invoice_name": "Overview Invoice Name",
+          "overview_invoice": "Overview Invoice"
+        },
+        "ProjectOverview": {
+          "Project_Overview_Title": "Project Overview",
+          "name": "Project Name",
+          "status": "Status",
+          "detail": "Detail"
+        },
+        "forms": {
+          "CloseModal": {
+            "title": "Unsaved changes",
+            "bodyFirstLine": "Are you sure you want to Leave this page?",
+            "bodySecondLine": "Changes you made will not be saved.",
+            "cancelButton": "Cancel",
+            "leaveButton": "Leave page"
+          }
+        }
+      },
+      "forms": {
+        "AccountFormUpdate": {
+          "successMessage": "Account updated successfully",
+          "warningMessageForRequiredFields": "Please fill in all required fields",
+          "warningMessageForOptionalFields": "Please don't leave any fields empty",
+          "title": "Edit account information",
+          "closeModalTitle": "Unsaved changes",
+          "closeModalBodyFirstLine": "Are you sure you want to Leave this page?",
+          "closeModalBodySecondLine": "Changes you made will not be saved.",
+          "closeModalLeaveButton": "Leave Page",
+          "buttonSubmitTitle": "Update"
+        },
+        "AccountFormCreate": {
+          "successMessage": "Account created successfully",
+          "errorMessageForExistingEmail": "This email is already in use",
+          "warningMessageForRequiredFields": "Please fill in all required fields",
+          "warningMessageForOptionalFields": "Please don't leave any fields empty",
+          "buttonTitle": "Add",
+          "title": "New account information",
+          "closeModalTitle": "Unsaved changes",
+          "closeModalBodyFirstLine": "Are you sure you want to Leave this page?",
+          "closeModalBodySecondLine": "Changes you made will not be saved.",
+          "closeModalLeaveButton": "Leave Page",
+          "submitModalTitle": "Create new account",
+          "submitModalBodyFirstLine": "Are you sure you want to create a new account?",
+          "submitModalBodySecondLine": "A new account will be created",
+          "submitModalConfirmButton": "Create",
+          "buttonSubmitTitle": "Create"
+        }
+      }
+    },
+    "accounts": {
+      "accountdetail": {
+        "account_error_data_detail": ""
+      },
+      "accountDetails": {
+        "AccountInfor": {
+          "account_error_data_accountInfo": ""
+        }
+      },
+      "forms": {
+        "AccountFormCreate": {
+          "warningMessageForRequiredFields": "Please fill in all required fields",
+          "warningMessageForOptionalFields": "Please don't leave any fields empty"
+        },
+        "AccountFormUpdate": {
+          "warningMessageForRequiredFields": "Please fill in all required fields",
+          "warningMessageForOptionalFields": "Please don't leave any fields empty"
+        }
+      }
+    },
+    "project": {
+      "forms": {
+        "ProjectFormCreate": {
+          "successMessage": "Create project successfully"
+        },
+        "ProjectFormUpdate": {
+          "successMessage": "Update project successfully"
+        }
+      }
+    }
+  },
+  "routes": {
+    "_layout": {
+      "sow": {
+        "CreateSow": {
+          "confirm_cancel_body_second_line": "",
+          "confirm_cancel_leave_button": ""
+        }
+      },
+      "account": {
+        "account-management": {
+          "confirm_detele_title": "Are you sure want to delete?",
+          "confirm_cancel_body_second_line": "Your action is not completed",
+          "confirm_cancel_leave_button": "Agree",
+          "phone_number": "Phone number",
+          "delete_success": "Delete Success",
+          "delete_error": "Delete Error",
+          "confirm_delete_title": "Are you sure you want to delete?",
+          "confirm_delete_body": "Account cannot be recovered",
+          "confirm_delete_second_line": "The account will be deleted",
+          "confirm_delete_button": "Agree",
+          "account_title": "Account",
+          "importantitem_error": "Importantitem Error",
+          "overdue-invoice": "Overdue Invoice"
+        }
+      },
+      "project": {
+        "project-management": {
+          "project_title": "Project"
+        }
+      }
+    }
+  },
+  "Common": {
+    "BaseTable": {
+      "table_actions": "Actions",
+      "table_no_data": "No Data",
+      "table_check_filter": "Your check filter again"
+    },
+    "EmpytState": {
+      "empyState_no_data": "No Data"
+    },
+    "projects": {
+      "forms": {
+        "ProjectFormCreate": {
+          "warningMessageForRequiredFields": "",
+          "warningMessageForOptionalFields": "",
+          "submitModalLeaveButton": ""
+        }
+      }
+    }
+  }
+}
