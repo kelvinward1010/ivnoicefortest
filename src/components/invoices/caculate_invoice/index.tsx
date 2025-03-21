@@ -1,5 +1,8 @@
+import SegmentToggle from "@/components/common/SegmentToggle"
 import InputSelect from "@/components/common/inputs/InputSelect"
-import { CurrencyCodeEnum } from "@/types/common"
+import { useColorModeValue } from "@/components/ui/color-mode"
+import { OPTIONCACULATE, OPTIONVIEWMODETIME } from "@/constants/invoice"
+import type { CurrencyCodeEnum } from "@/types/common"
 import { formatDate } from "@/utils"
 import {
   Box,
@@ -7,417 +10,68 @@ import {
   CloseButton,
   Dialog,
   Flex,
+  Heading,
   Input,
   Portal,
+  Spacer,
   Text,
   VStack,
-  createListCollection,
 } from "@chakra-ui/react"
-import React, { useCallback, useEffect, useState } from "react"
-import { useForm, useWatch } from "react-hook-form"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { type UseFormSetValue, useForm, useWatch } from "react-hook-form"
 import {
+  accounts,
+  employees,
+  projectsData,
+  resourceAllocations,
+  resourcePositionsData,
+  sowsData,
+  timesheetsData,
+} from "./data"
+import {
+  deepEqual,
   formatCurrency,
-  generateSOWTimesheets,
   getEarliestStartDate,
   getLatestEndDate,
+  getPublicHolidays,
   getPublicHolidaysInSchedule,
+  processSOWs,
 } from "./helper"
-
-interface Account {
-  id: string
-  name: string
-}
-
-interface Project {
-  id: string
-  name: string
-}
-
-interface ResourcePosition {
-  id: string
-  name: string
-  sowId: string
-  projectId: string
-  hourlyRate?: number
-  monthlyRate?: number
-}
-
-export interface ResourceAllocation {
-  id: string
-  positionId: string
-  employeeId: string
-  sowId: string
-  startDate: string
-  endDate: string
-}
-
-export interface Timesheet {
-  id: string
-  allocationId: string
-  date: string
-  hours: number
-  isHoliday: boolean
-}
-
-export interface Employee {
-  id: string
-  name: string
-  yearsOfService: number
-}
-
-export interface InvoiceSchedule {
-  id: string
-  sowId: string
-  startDate: string
-  endDate: string
-  isBilled: boolean
-}
-
-export interface SOW {
-  id: string
-  name: string
-  type: "T&M" | "FIXED PRICE" | "MAINTENANCE"
-  startDate: string
-  endDate: string
-  projectIds: string[]
-  currency_code: string
-  invoiceSchedules: InvoiceSchedule[]
-  resourcePositions: ResourcePosition[]
-}
-
-export interface AttendanceRecord {
-  employeeId: string
-  scheduleId: string
-  totalLeaveDays: number
-  carriedOverLeave: number
-}
-
-const accounts = createListCollection<Account>({
-  items: [
-    { id: "acc1", name: "Công ty Công nghệ A" },
-    { id: "acc2", name: "Tập đoàn Xây dựng B" },
-    { id: "acc3", name: "Startup Fintech C" },
-    { id: "acc4", name: "Công ty Y tế D" },
-    { id: "acc5", name: "Tổ chức Giáo dục E" },
-    { id: "acc6", name: "Doanh nghiệp Logistics F" },
-  ],
-})
-
-const projectsData: Record<string, Project[]> = {
-  acc1: [
-    { id: "proj1", name: "Hệ thống ERP" },
-    { id: "proj2", name: "Mobile App - Health Tracking" },
-    { id: "proj3", name: "AI Chatbot Platform" },
-    { id: "proj7", name: "IoT Smart Factory" },
-  ],
-  acc2: [
-    { id: "proj4", name: "Tòa nhà thông minh - Green Energy" },
-    { id: "proj5", name: "Hệ thống điện thế hệ mới" },
-    { id: "proj8", name: "Cầu đường bộ cao tốc" },
-  ],
-  acc3: [
-    { id: "proj6", name: "Nền tảng Payment Gateway" },
-    { id: "proj9", name: "Blockchain Wallet System" },
-  ],
-  acc4: [
-    { id: "proj10", name: "Hệ thống quản lý bệnh viện" },
-    { id: "proj11", name: "App đặt lịch khám online" },
-  ],
-  acc5: [
-    { id: "proj12", name: "Hệ thống E-Learning" },
-    { id: "proj13", name: "Ứng dụng học tiếng Anh AI" },
-  ],
-  acc6: [
-    { id: "proj14", name: "Hệ thống quản lý kho vận" },
-    { id: "proj15", name: "App tracking vận chuyển" },
-  ],
-}
-
-const employees: Employee[] = [
-  { id: "emp1", name: "Nguyễn Văn A", yearsOfService: 6 },
-  { id: "emp2", name: "Trần Thị B", yearsOfService: 4 },
-  { id: "emp3", name: "Lê Văn C", yearsOfService: 10 },
-  { id: "emp4", name: "Phạm Thị D", yearsOfService: 7 },
-  { id: "emp5", name: "Hoàng Văn E", yearsOfService: 2 },
-  { id: "emp6", name: "Vũ Thị F", yearsOfService: 4 },
-  { id: "emp7", name: "Đặng Văn G", yearsOfService: 2 },
-  { id: "emp8", name: "Bùi Thị H", yearsOfService: 6 },
-]
-
-const resourcePositionsData: ResourcePosition[] = [
-  {
-    id: "pos1",
-    name: "Fullstack Dev",
-    sowId: "sow1",
-    projectId: "proj1",
-    hourlyRate: 120000,
-  },
-  {
-    id: "pos2",
-    name: "Mobile Dev",
-    sowId: "sow1",
-    projectId: "proj2",
-    monthlyRate: 110000 * 8 * 20,
-  },
-  {
-    id: "pos3",
-    name: "AI Engineer",
-    sowId: "sow2",
-    projectId: "proj3",
-    monthlyRate: 150000 * 8 * 20,
-  },
-  {
-    id: "pos4",
-    name: "Civil Engineer",
-    sowId: "sow3",
-    projectId: "proj4",
-    hourlyRate: 200,
-    monthlyRate: 200000 * 8 * 20,
-  },
-  {
-    id: "pos5",
-    name: "Electrical Engineer",
-    sowId: "sow4",
-    projectId: "proj5",
-    hourlyRate: 180,
-    monthlyRate: 180000 * 8 * 20,
-  },
-  {
-    id: "pos6",
-    name: "DevOps Engineer",
-    sowId: "sow5",
-    projectId: "proj7",
-    hourlyRate: 130000,
-    monthlyRate: 130000 * 8 * 20,
-  },
-  {
-    id: "pos7",
-    name: "QA Lead",
-    sowId: "sow6",
-    projectId: "proj10",
-    hourlyRate: 100000,
-    monthlyRate: 100000 * 8 * 20,
-  },
-  {
-    id: "pos8",
-    name: "Blockchain Developer",
-    sowId: "sow7",
-    projectId: "proj9",
-    hourlyRate: 170000,
-    monthlyRate: 170000 * 8 * 20,
-  },
-]
-
-const invoiceSchedules: InvoiceSchedule[] = [
-  {
-    id: "sched1",
-    sowId: "sow1",
-    startDate: "2023-10-01",
-    endDate: "2023-10-31",
-    isBilled: false,
-  },
-  {
-    id: "sched2",
-    sowId: "sow1",
-    startDate: "2023-11-01",
-    endDate: "2023-11-30",
-    isBilled: true,
-  },
-  {
-    id: "sched3",
-    sowId: "sow1",
-    startDate: "2023-12-01",
-    endDate: "2023-12-31",
-    isBilled: false,
-  },
-  {
-    id: "sched4",
-    sowId: "sow2",
-    startDate: "2024-01-01",
-    endDate: "2023-01-30",
-    isBilled: false,
-  },
-  {
-    id: "sched5",
-    sowId: "sow2",
-    startDate: "2024-02-01",
-    endDate: "2023-01-28",
-    isBilled: false,
-  },
-
-  {
-    id: "sched8",
-    sowId: "sow4",
-    startDate: "2023-10-01",
-    endDate: "2023-10-31",
-    isBilled: false,
-  },
-  {
-    id: "sched9",
-    sowId: "sow4",
-    startDate: "2023-11-01",
-    endDate: "2023-11-30",
-    isBilled: false,
-  },
-  {
-    id: "sched6",
-    sowId: "sow5",
-    startDate: "2024-01-01",
-    endDate: "2024-01-31",
-    isBilled: false,
-  },
-  {
-    id: "sched7",
-    sowId: "sow7",
-    startDate: "2024-02-01",
-    endDate: "2024-02-28",
-    isBilled: false,
-  },
-]
-
-const sowsData: SOW[] = [
-  {
-    id: "sow1",
-    name: "Giai đoạn 1 - Phát triển core",
-    type: "T&M",
-    projectIds: ["proj1"],
-    startDate: "2024-01-01",
-    endDate: "2024-03-31",
-    currency_code: CurrencyCodeEnum.EUR,
-    invoiceSchedules: invoiceSchedules.filter((s) => s.sowId === "sow1"),
-    resourcePositions: resourcePositionsData.filter((s) => s.sowId === "sow1"),
-  },
-  {
-    id: "sow2",
-    name: "Giai đoạn 2 - Bảo trì",
-    type: "MAINTENANCE",
-    projectIds: ["proj1"],
-    startDate: "2024-04-01",
-    endDate: "2024-06-30",
-    currency_code: CurrencyCodeEnum.USD,
-    invoiceSchedules: invoiceSchedules.filter((s) => s.sowId === "sow2"),
-    resourcePositions: resourcePositionsData.filter((s) => s.sowId === "sow2"),
-  },
-
-  {
-    id: "sow3",
-    name: "Thiết kế hệ thống tòa nhà thông minh",
-    type: "FIXED PRICE",
-    startDate: "2023-11-01",
-    endDate: "2024-06-30",
-    projectIds: ["proj4"],
-    currency_code: CurrencyCodeEnum.JPY,
-    invoiceSchedules: invoiceSchedules.filter((s) => s.sowId === "sow3"),
-    resourcePositions: resourcePositionsData.filter((s) => s.sowId === "sow3"),
-  },
-
-  {
-    id: "sow4",
-    name: "ADD NEW TECH",
-    type: "FIXED PRICE",
-    startDate: "2023-11-01",
-    endDate: "2024-06-30",
-    projectIds: ["proj5"],
-    currency_code: CurrencyCodeEnum.EUR,
-    invoiceSchedules: invoiceSchedules.filter((s) => s.sowId === "sow4"),
-    resourcePositions: resourcePositionsData.filter((s) => s.sowId === "sow4"),
-  },
-  {
-    id: "sow5",
-    name: "Bảo trì hệ thống DevOps",
-    type: "MAINTENANCE",
-    projectIds: ["proj7", "proj12"],
-    startDate: "2024-01-01",
-    endDate: "2024-12-31",
-    currency_code: CurrencyCodeEnum.EUR,
-    invoiceSchedules: invoiceSchedules.filter((s) => s.sowId === "sow5"),
-    resourcePositions: resourcePositionsData.filter((s) => s.sowId === "sow5"),
-  },
-]
-
-export const resourceAllocations: ResourceAllocation[] = [
-  {
-    id: "alloc1",
-    positionId: "pos1",
-    employeeId: "emp1",
-    sowId: "sow1",
-    startDate: "2023-10-01",
-    endDate: "2024-03-31",
-  },
-  {
-    id: "alloc2",
-    positionId: "pos2",
-    employeeId: "emp2",
-    sowId: "sow1",
-    startDate: "2023-10-15",
-    endDate: "2024-02-28",
-  },
-  {
-    id: "alloc3",
-    positionId: "pos3",
-    employeeId: "emp3",
-    sowId: "sow2",
-    startDate: "2023-11-01",
-    endDate: "2024-01-31",
-  },
-  {
-    id: "allocx",
-    positionId: "pos5",
-    employeeId: "emp3",
-    sowId: "sow4",
-    startDate: "2023-11-01",
-    endDate: "2024-01-31",
-  },
-  {
-    id: "alloc4",
-    positionId: "pos6",
-    employeeId: "emp4",
-    sowId: "sow5",
-    startDate: "2024-01-01",
-    endDate: "2024-06-30",
-  },
-  {
-    id: "alloc5",
-    positionId: "pos8",
-    employeeId: "emp6",
-    sowId: "sow7",
-    startDate: "2024-02-01",
-    endDate: "2024-04-30",
-  },
-]
-
-const timesheetsData = sowsData.flatMap((sow) =>
-  generateSOWTimesheets(sow, resourceAllocations),
-)
-
-export function isWithinInterval(
-  date: Date,
-  interval: { start: Date; end: Date },
-): boolean {
-  return date >= interval.start && date <= interval.end
-}
+import type {
+  Account,
+  AdjustmentItem,
+  Employee,
+  InvoiceEmployee,
+  InvoicePosition,
+  InvoiceScheduleCaculate,
+  Project,
+  ResourceAllocation,
+  ResourcePosition,
+  SOW,
+  SOWCaculate,
+  Timesheet,
+} from "./types"
 
 interface MergedSOW extends SOW {
-  originalSOWs: SOW[]
-  mergedProjectId: string
+  originalSOWs: SOWCaculate[]
+  projectIds: string[]
 }
-
 function InvoiceCreationFlow() {
   const { control, watch, setValue } = useForm<{
     accountIds: string
-    projectIds: string[]
+    projectIds: string
     sowIds: string[]
   }>({
     defaultValues: {
       accountIds: "",
-      projectIds: [],
+      projectIds: "",
       sowIds: [],
     },
   })
 
   const [invoiceDetails, setInvoiceDetails] = useState<
     Array<{
-      sow: SOW | MergedSOW
+      sow: SOWCaculate | MergedSOW
       isMerged: boolean
       positions: ResourcePosition[]
       timesheets: Timesheet[]
@@ -425,12 +79,31 @@ function InvoiceCreationFlow() {
   >([])
 
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([])
-  const [filteredSOWs, setFilteredSOWs] = useState<SOW[]>([])
+  const [filteredSOWs, setFilteredSOWs] = useState<SOWCaculate[]>([])
   const [mergedSOWs, setMergedSOWs] = useState<MergedSOW[]>([])
-
+  const prevProjectsRef = useRef<Project[]>(filteredProjects)
+  const prevSOWsRef = useRef<SOW[]>(filteredSOWs)
+  const prevInvoiceDetailsRef = useRef<typeof invoiceDetails>([])
+  const [calculationMode, setCalculationMode] = useState<"NORMAL" | "FUTURE">(
+    "NORMAL",
+  )
+  const [viewMode, setViewMode] = useState<"days" | "hours">("hours")
+  const textColor = useColorModeValue("black", "white")
   const selectedAccounts = useWatch({ control, name: "accountIds" })
   const selectedProjects = useWatch({ control, name: "projectIds" })
   const selectedSowIds = useWatch({ control, name: "sowIds" })
+
+  const formatWorkTime = (hours: number): string => {
+    return viewMode === "hours"
+      ? `${hours} h`
+      : `${Number.parseFloat((hours / 8).toFixed(2))} days`
+  }
+
+  const { schedules, updatedSOWS } = processSOWs(
+    filteredSOWs,
+    calculationMode,
+    { returnUpdatedSOWS: true },
+  )
 
   useEffect(() => {
     if (!selectedAccounts) {
@@ -438,60 +111,82 @@ function InvoiceCreationFlow() {
       setFilteredSOWs([])
       setInvoiceDetails([])
 
-      if (watch("projectIds").length > 0) setValue("projectIds", [])
-      if (watch("sowIds").length > 0) setValue("sowIds", [])
+      if (watch("projectIds").length > 0) {
+        setValue("projectIds", "", {
+          shouldDirty: false,
+          shouldValidate: false,
+        })
+      }
+      if (watch("sowIds").length > 0) {
+        setValue("sowIds", [], { shouldDirty: false, shouldValidate: false })
+      }
 
       return
     }
 
     const newProjects = projectsData[selectedAccounts] || []
-    if (JSON.stringify(newProjects) !== JSON.stringify(filteredProjects)) {
+    if (
+      newProjects.length !== prevProjectsRef.current.length ||
+      !newProjects.every(
+        (proj, i) => proj.id === prevProjectsRef.current[i]?.id,
+      )
+    ) {
+      prevProjectsRef.current = newProjects
       setFilteredProjects(newProjects)
     }
-  }, [selectedAccounts, watch, setValue, filteredProjects])
+  }, [selectedAccounts, setValue, watch])
 
   const mergeSelectedSOWs = () => {
-    if (selectedProjects.length !== 1) {
+    const selectedProject = watch("projectIds")
+
+    if (!selectedProject) {
       alert("Vui lòng chọn chính xác 1 project để merge SOW")
       return
     }
 
-    const selectedSOWs = filteredSOWs.filter(
+    const selectedSOWs = allDisplaySOWs.filter(
       (sow) =>
         selectedSowIds.includes(sow.id) &&
-        !mergedSOWs.some((m) => m.originalSOWs.includes(sow)),
+        sow.projectIds?.includes(selectedProject),
     )
 
-    if (selectedSOWs.length < 2) return
+    if (selectedSOWs.length < 2) {
+      alert("Vui lòng chọn ít nhất 2 SOW cùng project")
+      return
+    }
+
+    const originalSOWs = selectedSOWs.filter(
+      (sow): sow is SOWCaculate => !("originalSOWs" in sow),
+    )
 
     const mergedSOW: MergedSOW = {
-      ...selectedSOWs[0],
+      ...originalSOWs[0],
       id: `merged-${Date.now()}`,
-      name: `[Merged] ${selectedSOWs.map((s) => s.name).join(" + ")}`,
-      startDate: getEarliestStartDate(selectedSOWs),
-      endDate: getLatestEndDate(selectedSOWs),
-      originalSOWs: selectedSOWs,
-      mergedProjectId: selectedProjects[0],
-      invoiceSchedules: mergeInvoiceSchedules(selectedSOWs),
-      resourcePositions: mergeResourcePositions(selectedSOWs),
+      name: `[Merged] ${originalSOWs.map((s) => s.name).join(" + ")}`,
+      startDate: getEarliestStartDate(originalSOWs),
+      endDate: getLatestEndDate(originalSOWs),
+      originalSOWs: originalSOWs,
+      projectIds: [selectedProjects[0]],
+      invoiceSchedules: mergeInvoiceSchedules(originalSOWs),
+      resourcePositions: mergeResourcePositions(originalSOWs),
     }
 
     setMergedSOWs((prev) => [...prev, mergedSOW])
-    setValue(
-      "sowIds",
-      selectedSowIds.filter((id) => !selectedSOWs.some((s) => s.id === id)),
-    )
+    setValue("sowIds", [])
   }
 
-  const mergeInvoiceSchedules = (sows: SOW[]) => {
-    const allSchedules = sows.flatMap((sow) =>
+  const mergeInvoiceSchedules = (
+    sows: SOWCaculate[],
+  ): InvoiceScheduleCaculate[] => {
+    return sows.flatMap((sow) =>
       sow.invoiceSchedules.map((s) => ({
         ...s,
-        originalSOWId: sow.id,
+        startDate: s.startDate || "",
+        endDate: s.endDate || "",
+        sowId: s.sowId,
+        isBilled: s.isBilled,
       })),
     )
-
-    return [...new Map(allSchedules.map((s) => [s.id, s])).values()]
   }
 
   const mergeResourcePositions = (sows: SOW[]) => {
@@ -504,21 +199,41 @@ function InvoiceCreationFlow() {
   }
 
   useEffect(() => {
-    const newSOWs = sowsData.filter((sow) =>
-      sow.projectIds?.some((pId) => selectedProjects.includes(pId)),
+    const selectedProject = selectedProjects
+
+    if (!selectedProject) {
+      setFilteredSOWs([])
+      return
+    }
+
+    const originalSOWs = sowsData.filter((sow) =>
+      sow.projectIds?.includes(selectedProject),
     )
 
-    if (JSON.stringify(newSOWs) !== JSON.stringify(filteredSOWs)) {
-      setFilteredSOWs([...new Set([...newSOWs])])
-    }
-  }, [selectedProjects, filteredSOWs])
+    const { updatedSOWS } = processSOWs(originalSOWs, calculationMode, {
+      returnUpdatedSOWS: true,
+    })
 
-  const allDisplaySOWs = [
-    ...filteredSOWs.filter(
-      (sow) => !mergedSOWs.some((m) => m.originalSOWs.includes(sow)),
-    ),
-    ...mergedSOWs,
-  ]
+    const newSOWs = [
+      ...(updatedSOWS || []).filter((sow) =>
+        sow.projectIds?.includes(selectedProject),
+      ),
+      ...mergedSOWs.filter((m) => m.projectIds.includes(selectedProject)),
+    ] as (SOWCaculate | MergedSOW)[]
+
+    if (JSON.stringify(newSOWs) !== JSON.stringify(prevSOWsRef.current)) {
+      prevSOWsRef.current = newSOWs as SOWCaculate[]
+      setFilteredSOWs(newSOWs as SOWCaculate[])
+    }
+  }, [selectedProjects, calculationMode, mergedSOWs])
+
+  const allDisplaySOWs = useMemo(() => {
+    const mergedSOWIds = new Set(mergedSOWs.map((m) => m.id))
+    return [
+      ...filteredSOWs.filter((sow) => !mergedSOWIds.has(sow.id)),
+      ...mergedSOWs,
+    ]
+  }, [filteredSOWs, mergedSOWs])
 
   useEffect(() => {
     const validSowIds = selectedSowIds.filter((sowId) =>
@@ -526,7 +241,9 @@ function InvoiceCreationFlow() {
     )
 
     const details = validSowIds.map((sowId) => {
-      const sow = allDisplaySOWs.find((s) => s.id === sowId)!
+      const sow = allDisplaySOWs.find((s) => s.id === sowId)! as
+        | SOWCaculate
+        | MergedSOW
       const isMerged = mergedSOWs.some((m) => m.id === sowId)
       const mergedGroup = isMerged
         ? mergedSOWs.find((m) => m.id === sowId)!
@@ -551,6 +268,13 @@ function InvoiceCreationFlow() {
         )
       }
 
+      if (
+        (calculationMode === "NORMAL" || calculationMode === "FUTURE") &&
+        (sow.type === "FIXED PRICE" || sow.type === "MAINTENANCE")
+      ) {
+        timesheets = []
+      }
+
       return {
         sow: mergedGroup || sow,
         isMerged,
@@ -560,8 +284,14 @@ function InvoiceCreationFlow() {
         timesheets,
       }
     })
-    setInvoiceDetails(details)
-  }, [selectedSowIds, mergedSOWs, allDisplaySOWs.find, allDisplaySOWs.some])
+
+    if (
+      JSON.stringify(details) !== JSON.stringify(prevInvoiceDetailsRef.current)
+    ) {
+      prevInvoiceDetailsRef.current = details
+      setInvoiceDetails(details)
+    }
+  }, [selectedSowIds, mergedSOWs, allDisplaySOWs, calculationMode])
 
   const handleRemoveInvoice = (sowId: string) => {
     setValue(
@@ -572,13 +302,44 @@ function InvoiceCreationFlow() {
 
   return (
     <Box p={4} h={"fit-content"}>
-      {selectedProjects.length === 1 && selectedSowIds.length >= 2 && (
-        <Button colorScheme="teal" onClick={mergeSelectedSOWs} mb={4}>
-          Merge SOWs
-        </Button>
-      )}
+      <Flex mb={4} justifyContent={"flex-start"} gap={7}>
+        {selectedSowIds.length >= 2 && (
+          <Flex direction={"column"} gap={1}>
+            <Text fontSize="sm" fontWeight="bold" color={textColor}>
+              Mode Merge
+            </Text>
+            <Button bg={"teal.600"} onClick={mergeSelectedSOWs} mb={4}>
+              Merge SOWs
+            </Button>
+          </Flex>
+        )}
+        <SegmentToggle
+          value={viewMode}
+          onChange={(val: "days" | "hours") => setViewMode(val)}
+          options={OPTIONVIEWMODETIME}
+          size={"lg"}
+          label="View Mode Time"
+        />
+        <SegmentToggle
+          value={calculationMode}
+          onChange={(val: "NORMAL" | "FUTURE") => setCalculationMode(val)}
+          options={OPTIONCACULATE}
+          size={"lg"}
+          label="Calculation Mode"
+        />
+      </Flex>
       <Flex gap={4} wrap={"wrap"} justifyContent={"flex-start"}>
-        <Flex gap={4} flexDirection={"column"} justifyContent={"flex-start"}>
+        <Flex
+          gap={4}
+          flexDirection={"column"}
+          w={"fit-content"}
+          h={"fit-content"}
+          justifyContent={"flex-start"}
+          mb={4}
+          p={3}
+          borderWidth={1}
+          borderRadius="md"
+        >
           <InputSelect
             control={control}
             options={accounts.items.map((acc: Account) => ({
@@ -600,7 +361,6 @@ function InvoiceCreationFlow() {
               }))}
               label="Select Project"
               id="projectIds"
-              isMuti
               isLoading={false}
               onInputChange={() => {}}
             />
@@ -628,6 +388,13 @@ function InvoiceCreationFlow() {
               key={detail.sow.id}
               detail={detail}
               onRemove={() => handleRemoveInvoice(detail.sow.id)}
+              viewMode={viewMode}
+              formatWorkTime={formatWorkTime}
+              calculationMode={calculationMode}
+              projectIds={selectedProjects}
+              accountIds={selectedAccounts}
+              periodsScheduleCaculation={schedules}
+              sows={updatedSOWS || []}
             />
           ))}
         </VStack>
@@ -636,47 +403,59 @@ function InvoiceCreationFlow() {
   )
 }
 
+interface InformationTranfer {
+  employees: any[]
+  position: any[]
+  total: number
+}
+
 function InvoiceDetailCard({
   detail,
   onRemove,
+  viewMode,
+  formatWorkTime,
+  calculationMode,
+  accountIds,
+  projectIds,
+  periodsScheduleCaculation,
+  sows,
 }: {
   detail: {
-    sow: SOW | MergedSOW
+    sow: SOWCaculate | MergedSOW
     isMerged: boolean
     positions: ResourcePosition[]
     timesheets: Timesheet[]
   }
   onRemove: () => void
+  viewMode: string
+  formatWorkTime: (v: number) => string
+  calculationMode: "NORMAL" | "FUTURE"
+  accountIds: string
+  projectIds: string
+  periodsScheduleCaculation: InvoiceScheduleCaculate[]
+  sows: SOWCaculate[]
 }) {
-  const [selectedSchedules, setSelectedSchedules] = useState<InvoiceSchedule[]>(
-    [],
-  )
+  const [selectedSchedules, setSelectedSchedules] = useState<
+    InvoiceScheduleCaculate[]
+  >([])
   const [manualAmounts, setManualAmounts] = useState<Record<string, number>>(
     () => ({}),
   )
-  // const { register, handleSubmit } = useForm()
-
-  const handleCreateInvoice = () => {
-    if (detail.sow.type === "T&M") {
-      if (selectedSchedules.length === 0) {
-        return
-      }
-
-      const updatedSchedules = detail.sow.invoiceSchedules.map((s) =>
-        selectedSchedules.some((ss) => ss.id === s.id)
-          ? { ...s, isBilled: true }
-          : s,
-      )
-
-      detail.sow.invoiceSchedules = updatedSchedules
-      setSelectedSchedules([])
-    } else {
-    }
-  }
+  const buttonColor = useColorModeValue("blue.700", "blue.600")
+  const buttontextColor = useColorModeValue("gray.100", "white")
+  const buttonHoverColor = useColorModeValue("blue.800", "blue.700")
+  const [isDueDateDialogOpen, setIsDueDateDialogOpen] = useState(false)
+  const [dueDate, setDueDate] = useState("")
+  const [isCreating, setIsCreating] = useState(false)
+  const { setValue, watch } = useForm<InformationTranfer>({ mode: "onChange" })
+  const prevValues = useRef<{ total: number; employees: AdjustmentItem[] }>({
+    total: 0,
+    employees: [],
+  })
 
   const isAllocationInSchedule = (
     alloc: ResourceAllocation,
-    schedule: InvoiceSchedule,
+    schedule: InvoiceScheduleCaculate,
   ) => {
     const allocStart = new Date(alloc.startDate)
     const allocEnd = new Date(alloc.endDate)
@@ -686,7 +465,7 @@ function InvoiceDetailCard({
     return allocStart <= scheduleEnd && allocEnd >= scheduleStart
   }
 
-  const getMonthsInSchedule = (schedule: InvoiceSchedule) => {
+  const getMonthsInSchedule = (schedule: InvoiceScheduleCaculate) => {
     const start = new Date(schedule.startDate)
     const end = new Date(schedule.endDate)
     return (
@@ -698,7 +477,7 @@ function InvoiceDetailCard({
 
   const getEmployeeHours = (
     employeeId: string,
-    schedule: InvoiceSchedule,
+    schedule: InvoiceScheduleCaculate,
     targetSOW?: SOW,
   ): number => {
     return detail.timesheets
@@ -707,20 +486,443 @@ function InvoiceDetailCard({
           (a) => a.id === ts.allocationId && a.employeeId === employeeId,
         )
 
-        const isInTargetSOW = targetSOW ? alloc?.sowId === targetSOW.id : true
+        const sow = sows.find((s) => s.id === alloc?.sowId)
+        const isTMContract = sow?.type === "T&M"
 
+        const isInTargetSOW = targetSOW ? alloc?.sowId === targetSOW.id : true
         const isInSchedule =
           new Date(ts.date) >= new Date(schedule.startDate) &&
           new Date(ts.date) <= new Date(schedule.endDate)
 
-        return alloc && isInTargetSOW && isInSchedule
+        return alloc && isInTargetSOW && isInSchedule && isTMContract
       })
       .reduce((sum, ts) => sum + ts.hours, 0)
   }
 
+  const getActualHours = (
+    schedule: InvoiceScheduleCaculate,
+    employeeId: string,
+  ): number => {
+    return timesheetsData
+      .filter((ts) => {
+        const allocation = resourceAllocations.find(
+          (a) => a.id === ts.allocationId,
+        )
+
+        const sow = allocation
+          ? sows.find((s) => s.id === allocation.sowId)
+          : null
+        const isTMContract = sow?.type === "T&M"
+
+        return (
+          allocation?.employeeId === employeeId &&
+          new Date(ts.date) >= new Date(schedule.startDate) &&
+          new Date(ts.date) <= new Date(schedule.endDate) &&
+          !ts.isHoliday &&
+          isTMContract
+        )
+      })
+      .reduce((sum, ts) => sum + ts.hours, 0)
+  }
+
+  const FormButtonSchedule = ({
+    schedule,
+    onToggleSchedule,
+  }: {
+    schedule: InvoiceScheduleCaculate
+    onToggleSchedule: (schedule: InvoiceScheduleCaculate) => void
+  }) => {
+    return (
+      <Button
+        key={schedule.id}
+        variant={
+          selectedSchedules.some((s) => s.id === schedule.id)
+            ? "solid"
+            : "outline"
+        }
+        onClick={() => onToggleSchedule(schedule as InvoiceScheduleCaculate)}
+        bg={
+          selectedSchedules.some((s) => s.id === schedule.id) ? buttonColor : ""
+        }
+        borderRadius="full"
+      >
+        {`${formatDate(schedule.startDate)} - ${formatDate(schedule.endDate)}`}
+      </Button>
+    )
+  }
+
+  const getPreviousSchedule = (
+    currentSchedules: InvoiceScheduleCaculate[],
+    isMerged: boolean,
+    originalSOWs?: SOWCaculate[],
+  ): InvoiceScheduleCaculate | null => {
+    if (currentSchedules.length === 0) return null
+
+    const earliestStartDate = currentSchedules.reduce(
+      (min, s) => (new Date(s.startDate) < min ? new Date(s.startDate) : min),
+      new Date(currentSchedules[0].startDate),
+    )
+
+    if (isMerged && originalSOWs) {
+      const originalSOWIds = originalSOWs
+        .filter((s) => s.type === "T&M")
+        .map((s) => s.id)
+
+      const allSchedules = periodsScheduleCaculation.filter(
+        (s) =>
+          originalSOWIds.includes(s.sowId) &&
+          new Date(s.endDate) < earliestStartDate,
+      )
+
+      return allSchedules[0] || null
+    }
+
+    const currentSOW = sowsData.find((s) => s.id === currentSchedules[0]?.sowId)
+    if (!currentSOW || currentSOW.type !== "T&M") return null
+
+    return (
+      periodsScheduleCaculation.filter(
+        (s) =>
+          s.sowId === currentSchedules[0].sowId &&
+          new Date(s.endDate) < earliestStartDate,
+      )[0] || null
+    )
+  }
+
+  const getWorkDays = (schedule: InvoiceScheduleCaculate): number => {
+    const start = new Date(schedule.startDate)
+    const end = new Date(schedule.endDate)
+    let workDays = 0
+
+    const publicHolidays = getPublicHolidays(schedule).map((h) =>
+      new Date(h).toDateString(),
+    )
+
+    const current = new Date(start)
+    while (current <= end) {
+      const dayOfWeek = current.getDay()
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
+      const isHoliday = publicHolidays.includes(current.toDateString())
+
+      if (!isWeekend && !isHoliday) {
+        workDays++
+      }
+
+      current.setDate(current.getDate() + 1)
+    }
+
+    return workDays
+  }
+
+  const getPlannedHours = (schedule: InvoiceScheduleCaculate): number => {
+    const workDays = getWorkDays(schedule)
+    const monthlyLeave = 1
+
+    return Math.max(workDays - monthlyLeave, 0) * 8
+  }
+
+  const AdjustmentDetails = ({
+    currentSchedules,
+  }: {
+    currentSchedules: InvoiceScheduleCaculate[]
+  }) => {
+    const tmSchedules = useMemo(() => {
+      return currentSchedules.filter((schedule) => {
+        if (detail.isMerged) {
+          const mergedSOW = detail.sow as MergedSOW
+          const originalSOW = mergedSOW.originalSOWs.find(
+            (s) => s.id === schedule.sowId,
+          )
+          return originalSOW?.type === "T&M"
+        }
+        return detail.sow.type === "T&M"
+      })
+    }, [currentSchedules, detail.sow, detail.isMerged])
+
+    const previousSchedule = useMemo(
+      () =>
+        getPreviousSchedule(
+          tmSchedules,
+          detail.isMerged,
+          detail.isMerged ? (detail.sow as MergedSOW).originalSOWs : undefined,
+        ),
+      [tmSchedules, detail.isMerged, detail.sow],
+    )
+
+    const { totalAdjustment, adjustments } = useMemo(() => {
+      if (!previousSchedule) return { totalAdjustment: 0, adjustments: [] }
+
+      const results = resourceAllocations
+        .filter((a) => a.sowId === previousSchedule.sowId)
+        .map((allocation) => {
+          const employee = employees.find((e) => e.id === allocation.employeeId)
+          if (!employee) return null
+
+          const position = resourcePositionsData.find(
+            (p) => p.id === allocation.positionId,
+          )
+          const { plannedHours, actualHours, variance } = calculateVariance(
+            previousSchedule,
+            employee,
+          )
+          const rate =
+            position?.hourlyRate || (position?.monthlyRate ?? 0) / 160
+          const adjustment = variance * rate
+
+          return {
+            employee,
+            position: position?.name || "Không xác định",
+            plannedHours,
+            actualHours,
+            variance,
+            adjustment,
+            rate,
+          }
+        })
+        .filter(Boolean) as AdjustmentItem[]
+      return {
+        totalAdjustment: results.reduce((sum, r) => sum + r.adjustment, 0),
+        adjustments: results,
+      }
+    }, [previousSchedule])
+
+    const totalCurrent = useMemo(
+      () => tmSchedules.reduce((sum, s) => sum + calculateBaseTotal(s), 0),
+      [tmSchedules],
+    )
+
+    useEffect(() => {
+      const newTotal = totalCurrent - totalAdjustment
+
+      if (prevValues.current.total !== newTotal) {
+        prevValues.current.total = newTotal
+      }
+
+      if (!deepEqual(prevValues.current.employees, adjustments)) {
+        prevValues.current.employees = adjustments
+      }
+    }, [totalCurrent, totalAdjustment, adjustments])
+
+    return (
+      <Box
+        display={"flex"}
+        gap={8}
+        flexDirection={{ base: "column", md: "row" }}
+        alignItems={"flex-start"}
+      >
+        {previousSchedule && (
+          <Box flex={1} width="100%">
+            <Box bg="white" p={6} borderRadius="lg" boxShadow="md">
+              <Heading size="xl" mb={6} color="blue.800">
+                ADJUSTMENT FROM PREVIOUS CYCLE
+              </Heading>
+
+              <Text fontSize="medium" mb={6} fontWeight="500">
+                {formatDate(previousSchedule.startDate)} -{" "}
+                {formatDate(previousSchedule.endDate)}
+              </Text>
+
+              {adjustments.map(
+                ({
+                  employee,
+                  position,
+                  plannedHours,
+                  actualHours,
+                  variance,
+                  adjustment,
+                  rate,
+                }) => (
+                  <Box
+                    key={employee.id}
+                    mb={8}
+                    p={6}
+                    borderWidth={1}
+                    borderRadius="md"
+                    bg="gray.50"
+                    minW="500px"
+                  >
+                    <Flex direction="column" gap={4}>
+                      <Flex justify={"start"} gap={4} alignItems="center">
+                        <Text fontSize="medium" fontWeight="600">
+                          {employee.name}
+                        </Text>
+                        <Text fontSize="sm" color="gray.600">
+                          ({position})
+                        </Text>
+                      </Flex>
+
+                      <Flex
+                        justify="space-between"
+                        gap={4}
+                        flexWrap={{ base: "wrap", md: "nowrap" }}
+                      >
+                        <Box flex={1}>
+                          <Text fontSize="sm" color="gray.500">
+                            Price Level
+                          </Text>
+                          <Text>{rate.toLocaleString()}€/h</Text>
+                        </Box>
+                        <Box flex={1}>
+                          <Text fontSize="sm" color="gray.500">
+                            Plan
+                          </Text>
+                          <Text>{plannedHours}h</Text>
+                        </Box>
+                        <Box flex={1}>
+                          <Text fontSize="sm" color="gray.500">
+                            Actual
+                          </Text>
+                          <Text>{actualHours}h</Text>
+                        </Box>
+                        <Box flex={1}>
+                          <Text fontSize="sm" color="gray.500">
+                            Difference
+                          </Text>
+                          <Text color={variance > 0 ? "green.500" : "red.500"}>
+                            {variance > 0 ? "+" : ""}
+                            {variance}h
+                          </Text>
+                        </Box>
+                      </Flex>
+
+                      <Flex justify="flex-end" mt={2}>
+                        <Box textAlign="right">
+                          <Text
+                            fontSize="lg"
+                            fontWeight="600"
+                            color={adjustment > 0 ? "green.500" : "red.500"}
+                          >
+                            {adjustment > 0 ? "Refund" : "Surcharge"}:{" "}
+                            {formatCurrency(
+                              adjustment,
+                              detail.sow.currency_code as CurrencyCodeEnum,
+                            )}
+                          </Text>
+                          <Text fontSize="sm" color="gray.600">
+                            ({Math.abs(variance)}h × {rate.toLocaleString()}€/h)
+                          </Text>
+                        </Box>
+                      </Flex>
+                    </Flex>
+                  </Box>
+                ),
+              )}
+            </Box>
+          </Box>
+        )}
+
+        <Box flex={1} width="100%" minW="500px">
+          <Box bg="white" p={6} borderRadius="lg" boxShadow="md">
+            <Heading size="xl" mb={6} color="blue.800">
+              PAYMENT SUMMARY
+            </Heading>
+
+            {tmSchedules.map((schedule) => (
+              <Flex key={schedule.id} justify="space-between" mb={3} px={2}>
+                <Text fontSize="medium">
+                  {formatDate(schedule.startDate)} -{" "}
+                  {formatDate(schedule.endDate)}
+                </Text>
+                <Text fontSize="medium" fontWeight="500">
+                  {calculateBaseTotal(schedule).toLocaleString()}€
+                </Text>
+              </Flex>
+            ))}
+
+            <Box mt={6} pt={4} borderTopWidth={2}>
+              <Flex justify="space-between" mb={3} alignItems="center">
+                <Text fontSize={"medium"} fontWeight="bold">
+                  Total original value:
+                </Text>
+                <Text fontSize="medium" fontWeight="bold">
+                  {totalCurrent.toLocaleString()}€
+                </Text>
+              </Flex>
+
+              {previousSchedule && (
+                <Flex justify="space-between" mb={3} alignItems="center">
+                  <Text fontSize="medium">Total adjustment:</Text>
+                  <Text
+                    fontSize="medium"
+                    color={totalAdjustment > 0 ? "green.500" : "red.500"}
+                  >
+                    {totalAdjustment > 0 ? "-" : "+"}
+                    {Math.abs(totalAdjustment).toLocaleString()}€
+                  </Text>
+                </Flex>
+              )}
+
+              <Flex
+                justify="space-between"
+                alignItems="center"
+                mt={4}
+                flexWrap={{ base: "wrap", md: "nowrap" }}
+              >
+                <Text
+                  fontSize="medium"
+                  fontWeight="bold"
+                  whiteSpace="nowrap"
+                  flexShrink={0}
+                >
+                  Final total payment:
+                </Text>{" "}
+                <Spacer />
+                <Text
+                  fontSize="medium"
+                  fontWeight="bold"
+                  color="blue.600"
+                  whiteSpace="nowrap"
+                  flexShrink={0}
+                >
+                  {formatCurrency(
+                    totalCurrent - totalAdjustment,
+                    detail.sow.currency_code as CurrencyCodeEnum,
+                  )}
+                </Text>
+              </Flex>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    )
+  }
+
+  const calculateBaseTotal = (schedule: InvoiceScheduleCaculate): number => {
+    return resourceAllocations
+      .filter((a) => a.sowId === schedule.sowId)
+      .reduce((sum, allocation) => {
+        const position = resourcePositionsData.find(
+          (p) => p.id === allocation.positionId,
+        )
+        if (!position) return sum
+        return (
+          sum +
+          (position.monthlyRate
+            ? (position.monthlyRate / 20 / 8) * getPlannedHours(schedule)
+            : (position.hourlyRate || 0) * getPlannedHours(schedule))
+        )
+      }, 0)
+  }
+
+  const calculateVariance = (
+    schedule: InvoiceScheduleCaculate,
+    employee: Employee,
+  ) => {
+    const plannedHours = 20 * 8
+    const publicHolidays = getPublicHolidays(schedule)
+    const allowedLeaveHours = (1 + publicHolidays.length) * 8
+    const actualHours = getActualHours(schedule, employee.id)
+
+    return {
+      plannedHours: plannedHours - allowedLeaveHours,
+      actualHours,
+      variance: plannedHours - allowedLeaveHours - actualHours,
+    }
+  }
+
   const calculateEmployeeInvoice = (
     employee: Employee,
-    schedule: InvoiceSchedule,
+    schedule: InvoiceScheduleCaculate,
     targetSOW?: SOW,
   ) => {
     const positions = targetSOW
@@ -766,7 +968,7 @@ function InvoiceDetailCard({
     return 0
   }
 
-  const toggleSchedule = (schedule: InvoiceSchedule) => {
+  const toggleSchedule = (schedule: InvoiceScheduleCaculate) => {
     setSelectedSchedules((prev) =>
       prev.some((s) => s.id === schedule.id)
         ? prev.filter((s) => s.id !== schedule.id)
@@ -775,52 +977,66 @@ function InvoiceDetailCard({
   }
 
   const calculateScheduleTotal = (
-    schedule: InvoiceSchedule,
-    targetSOW?: SOW,
+    schedule: InvoiceScheduleCaculate,
+    targetSOW: SOWCaculate | MergedSOW,
   ) => {
-    return employees.reduce((total, employee) => {
-      const position = (targetSOW || detail.sow).resourcePositions.find((p) =>
-        resourceAllocations.some(
-          (a) =>
-            a.employeeId === employee.id &&
-            a.positionId === p.id &&
-            isAllocationInSchedule(a, schedule),
-        ),
+    const originalSOWs = isMergedGroup(targetSOW)
+      ? targetSOW.originalSOWs
+      : [targetSOW]
+
+    return originalSOWs.reduce((total) => {
+      return (
+        total +
+        employees.reduce((total, employee) => {
+          const position = (targetSOW || detail.sow).resourcePositions.find(
+            (p) =>
+              resourceAllocations.some(
+                (a) =>
+                  a.employeeId === employee.id &&
+                  a.positionId === p.id &&
+                  isAllocationInSchedule(a, schedule),
+              ),
+          )
+
+          if (!position) return total
+
+          if (position.hourlyRate) {
+            const hours = getEmployeeHours(employee.id, schedule, targetSOW)
+            return total + hours * position.hourlyRate
+          }
+
+          if (position.monthlyRate) {
+            const months = getMonthsInSchedule(schedule)
+            const dailyRate = position.monthlyRate / 20
+
+            const publicHolidays = getPublicHolidaysInSchedule(schedule, {
+              timesheets: detail.timesheets,
+            })
+            const allowedLeave = 1 * months + publicHolidays
+
+            const totalHours = getEmployeeHours(
+              employee.id,
+              schedule,
+              targetSOW,
+            )
+            const actualWorkDays = totalHours / 8
+
+            const standardWorkDays = 20 * months
+            const totalLeaveDays = standardWorkDays - actualWorkDays
+            const excessLeave = Math.max(0, totalLeaveDays - allowedLeave)
+
+            const deduction = excessLeave * dailyRate
+
+            return total + (position.monthlyRate * months - deduction)
+          }
+
+          return total
+        }, 0)
       )
-
-      if (!position) return total
-
-      if (position.hourlyRate) {
-        const hours = getEmployeeHours(employee.id, schedule, targetSOW)
-        return total + hours * position.hourlyRate
-      }
-
-      if (position.monthlyRate) {
-        const months = getMonthsInSchedule(schedule)
-        const dailyRate = position.monthlyRate / 20
-
-        const publicHolidays = getPublicHolidaysInSchedule(schedule, {
-          timesheets: detail.timesheets,
-        })
-        const allowedLeave = 1 * months + publicHolidays
-
-        const totalHours = getEmployeeHours(employee.id, schedule, targetSOW)
-        const actualWorkDays = totalHours / 8
-
-        const standardWorkDays = 20 * months
-        const totalLeaveDays = standardWorkDays - actualWorkDays
-        const excessLeave = Math.max(0, totalLeaveDays - allowedLeave)
-
-        const deduction = excessLeave * dailyRate
-
-        return total + (position.monthlyRate * months - deduction)
-      }
-
-      return total
     }, 0)
   }
 
-  const isMergedGroup = (sow: SOW | MergedSOW): sow is MergedSOW => {
+  const isMergedGroup = (sow: SOWCaculate | MergedSOW): sow is MergedSOW => {
     return "originalSOWs" in sow
   }
 
@@ -850,6 +1066,7 @@ function InvoiceDetailCard({
                     onToggleSchedule={toggleSchedule}
                     calculateScheduleTotal={calculateScheduleTotal}
                     isMerged={true}
+                    setValueBackTo={setValue}
                   />
                 ) : (
                   <FixedPriceSection
@@ -865,6 +1082,8 @@ function InvoiceDetailCard({
           <TotalSection
             selectedSchedules={selectedSchedules}
             manualAmounts={manualAmounts}
+            calculationMode={calculationMode}
+            totalAdjustment={prevValues.current.total}
           />
         </Box>
       )
@@ -879,6 +1098,7 @@ function InvoiceDetailCard({
             selectedSchedules={selectedSchedules}
             onToggleSchedule={toggleSchedule}
             calculateScheduleTotal={calculateScheduleTotal}
+            setValueBackTo={setValue}
           />
         ) : (
           <FixedPriceSection
@@ -896,59 +1116,62 @@ function InvoiceDetailCard({
     schedule,
     sow,
   }: {
-    schedule: InvoiceSchedule
-    sow: SOW
+    schedule: InvoiceScheduleCaculate
+    sow: SOWCaculate
   }) => {
     return (
       <Box mb={4} p={3} borderWidth={1} borderRadius="md">
-        <Flex justify="space-between" mb={3}>
-          <Text fontWeight="600">
-            {formatDate(schedule.startDate)} - {formatDate(schedule.endDate)}
-          </Text>
-          <Text color="green.600">
-            {formatCurrency(
-              calculateScheduleTotal(schedule, sow),
-              sow.currency_code as CurrencyCodeEnum,
-            )}
-          </Text>
-        </Flex>
+        {calculationMode !== "FUTURE" && (
+          <Flex justify="space-between" mb={3}>
+            <Text fontWeight="600">
+              {formatDate(schedule.startDate)} - {formatDate(schedule.endDate)}
+            </Text>
+            <Text color="green.600">
+              {formatCurrency(
+                calculateScheduleTotal(schedule, sow),
+                sow.currency_code as CurrencyCodeEnum,
+              )}
+            </Text>
+          </Flex>
+        )}
 
-        {employees
-          .filter((employee) =>
-            resourceAllocations.some(
-              (a) =>
-                a.employeeId === employee.id &&
-                a.sowId === sow.id &&
-                isAllocationInSchedule(a, schedule),
-            ),
-          )
-          .map((employee) => {
-            const position = sow.resourcePositions.find((p) =>
+        {calculationMode === "NORMAL" &&
+          employees
+            .filter((employee) =>
               resourceAllocations.some(
-                (a) => a.employeeId === employee.id && a.positionId === p.id,
+                (a) =>
+                  a.employeeId === employee.id &&
+                  a.sowId === sow.id &&
+                  isAllocationInSchedule(a, schedule),
               ),
             )
+            .map((employee) => {
+              const position = sow.resourcePositions.find((p) =>
+                resourceAllocations.some(
+                  (a) => a.employeeId === employee.id && a.positionId === p.id,
+                ),
+              )
 
-            const hours = getEmployeeHours(employee.id, schedule, sow)
-            const amount = calculateEmployeeInvoice(employee, schedule, sow)
+              const hours = getEmployeeHours(employee.id, schedule, sow)
+              const amount = calculateEmployeeInvoice(employee, schedule, sow)
 
-            return (
-              <Flex key={employee.id} justify="space-between" mb={2}>
-                <Box>
-                  <Text>{employee.name}</Text>
-                  <Text fontSize="sm" color="gray.600">
-                    {position?.name} • {hours}h
+              return (
+                <Flex key={employee.id} justify="space-between" mb={2}>
+                  <Box>
+                    <Text>{employee.name}</Text>
+                    <Text fontSize="sm" color="gray.600">
+                      {position?.name} • {formatWorkTime(hours)}
+                    </Text>
+                  </Box>
+                  <Text color="green.500">
+                    {formatCurrency(
+                      amount,
+                      sow.currency_code as CurrencyCodeEnum,
+                    )}
                   </Text>
-                </Box>
-                <Text color="green.500">
-                  {formatCurrency(
-                    amount,
-                    sow.currency_code as CurrencyCodeEnum,
-                  )}
-                </Text>
-              </Flex>
-            )
-          })}
+                </Flex>
+              )
+            })}
       </Box>
     )
   }
@@ -959,17 +1182,21 @@ function InvoiceDetailCard({
     onToggleSchedule,
     calculateScheduleTotal,
     isMerged = false,
+    setValueBackTo,
   }: {
-    sow: SOW
-    selectedSchedules: InvoiceSchedule[]
-    onToggleSchedule: (schedule: InvoiceSchedule) => void
+    sow: SOWCaculate
+    selectedSchedules: InvoiceScheduleCaculate[]
+    onToggleSchedule: (schedule: InvoiceScheduleCaculate) => void
     calculateScheduleTotal: (
-      schedule: InvoiceSchedule,
-      targetSOW: SOW,
+      schedule: InvoiceScheduleCaculate,
+      targetSOW: SOWCaculate | MergedSOW,
     ) => number
     isMerged?: boolean
+    setValueBackTo: UseFormSetValue<InformationTranfer>
   }) => {
-    const availableSchedules = sow.invoiceSchedules.filter((s) => !s.isBilled)
+    const availableSchedules = sow.invoiceSchedules.filter(
+      (s) => !s.isBilled,
+    ) as InvoiceScheduleCaculate[]
 
     let totalAmount = 0
 
@@ -985,11 +1212,11 @@ function InvoiceDetailCard({
       }
     } else if (detail.sow.type === "T&M") {
       for (const sched of selectedSchedules) {
-        totalAmount += calculateScheduleTotal(sched, detail.sow)
+        totalAmount += calculateScheduleTotal(sched, detail.sow as SOWCaculate)
       }
     }
 
-    const calculateEmployeeTotals = () => {
+    const calculateEmployeeTotals = useCallback(() => {
       const employeeMap = new Map<string, { hours: number; amount: number }>()
       const tmSchedules = selectedSchedules.filter((s) => {
         const sow = isMergedGroup(detail.sow)
@@ -1026,7 +1253,24 @@ function InvoiceDetailCard({
         employee: employees.find((e) => e.id === empId)!,
         ...totals,
       }))
-    }
+    }, [selectedSchedules, detail.sow])
+
+    const employeeTotals = useMemo(
+      () => calculateEmployeeTotals(),
+      [calculateEmployeeTotals],
+    )
+
+    useEffect(() => {
+      if (totalAmount !== watch("total")) {
+        setValueBackTo("total", totalAmount)
+      }
+
+      if (
+        JSON.stringify(employeeTotals) !== JSON.stringify(watch("employees"))
+      ) {
+        setValueBackTo("employees", employeeTotals)
+      }
+    }, [totalAmount, employeeTotals, setValueBackTo])
 
     return (
       <Box>
@@ -1036,35 +1280,39 @@ function InvoiceDetailCard({
 
         <Flex wrap="wrap" gap={2} mb={4}>
           {availableSchedules.map((schedule) => (
-            <Button
+            <FormButtonSchedule
               key={schedule.id}
-              variant={
-                selectedSchedules.some((s) => s.id === schedule.id)
-                  ? "solid"
-                  : "outline"
-              }
-              onClick={() => onToggleSchedule(schedule)}
-            >
-              {`${formatDate(schedule.startDate)} - ${formatDate(schedule.endDate)}`}
-            </Button>
+              schedule={schedule}
+              onToggleSchedule={onToggleSchedule}
+            />
           ))}
         </Flex>
 
-        {selectedSchedules
-          .filter((s) => s.sowId === sow.id)
-          .map((schedule) => (
-            <ScheduleDetails key={schedule.id} schedule={schedule} sow={sow} />
-          ))}
+        {calculationMode !== "FUTURE" &&
+          selectedSchedules
+            .filter((s) => s.sowId === sow.id)
+            .map((schedule) => (
+              <ScheduleDetails
+                key={schedule.id}
+                schedule={schedule}
+                sow={sow}
+              />
+            ))}
 
-        {selectedSchedules.length > 1 && (
+        {calculationMode === "FUTURE" && (
+          <AdjustmentDetails currentSchedules={selectedSchedules} />
+        )}
+
+        {selectedSchedules.length > 1 && calculationMode !== "FUTURE" && (
           <Box mb={4} p={3} borderWidth={1} borderRadius="md">
-            <Text fontWeight={"600"}>Deatil Information</Text>
+            <Text fontWeight={"600"}>Detail Information</Text>
             {calculateEmployeeTotals().map(({ employee, hours, amount }) => (
               <Flex key={employee.id} justify="space-between" mb={2}>
                 <Box>
                   <Text>{employee.name}</Text>
                   <Text fontSize="sm" color="gray.600">
-                    Total working hours: {hours}h
+                    Total working {viewMode === "hours" ? "hours" : "days"}:{" "}
+                    {formatWorkTime(hours)}
                   </Text>
                 </Box>
                 <Text color="green.500">
@@ -1077,7 +1325,7 @@ function InvoiceDetailCard({
             ))}
           </Box>
         )}
-        {!isMerged && (
+        {!isMerged && calculationMode !== "FUTURE" && (
           <Box mt={4} borderTopWidth={1} pt={4}>
             <Flex justify="space-between" fontWeight="bold">
               <Text>Total:</Text>
@@ -1101,9 +1349,9 @@ function InvoiceDetailCard({
       onToggleSchedule,
       value,
     }: {
-      sow: SOW
+      sow: SOWCaculate
       onAmountChange: (sowId: string, value: number) => void
-      onToggleSchedule: (schedule: InvoiceSchedule) => void
+      onToggleSchedule: (schedule: InvoiceScheduleCaculate) => void
       value?: number
     }) => {
       const [localValue, setLocalValue] = useState(value || "")
@@ -1124,17 +1372,11 @@ function InvoiceDetailCard({
           </Text>
           <Flex wrap="wrap" gap={2} mb={4}>
             {availableSchedules.map((schedule) => (
-              <Button
+              <FormButtonSchedule
                 key={schedule.id}
-                variant={
-                  selectedSchedules.some((s) => s.id === schedule.id)
-                    ? "solid"
-                    : "outline"
-                }
-                onClick={() => onToggleSchedule(schedule)}
-              >
-                {`${formatDate(schedule.startDate)} - ${formatDate(schedule.endDate)}`}
-              </Button>
+                schedule={schedule}
+                onToggleSchedule={onToggleSchedule}
+              />
             ))}
           </Flex>
           <Input
@@ -1151,9 +1393,13 @@ function InvoiceDetailCard({
   const TotalSection = ({
     selectedSchedules,
     manualAmounts,
+    calculationMode = "NORMAL",
+    totalAdjustment = 0,
   }: {
-    selectedSchedules: InvoiceSchedule[]
+    selectedSchedules: InvoiceScheduleCaculate[]
     manualAmounts: Record<string, number>
+    calculationMode?: "NORMAL" | "FUTURE"
+    totalAdjustment?: number
   }) => {
     const calculateTotal = () => {
       let total = 0
@@ -1180,6 +1426,13 @@ function InvoiceDetailCard({
         )
       }
       total += Object.values(manualAmounts).reduce((a, b) => a + b, 0)
+
+      if (calculationMode === "FUTURE") {
+        total =
+          totalAdjustment +
+          Object.values(manualAmounts).reduce((a, b) => a + b, 0)
+      }
+
       return total
     }
 
@@ -1196,6 +1449,161 @@ function InvoiceDetailCard({
         </Flex>
       </Box>
     )
+  }
+
+  const handleConfirmCreateInvoice = async () => {
+    if (!dueDate) {
+      alert("Vui lòng chọn ngày due date")
+      return
+    }
+
+    try {
+      setIsCreating(true)
+      await handleCreateInvoice(dueDate)
+      setIsDueDateDialogOpen(false)
+    } catch (error) {
+      console.error("Lỗi khi tạo invoice:", error)
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
+  const renderDueDateDialog = () => (
+    <Dialog.Root
+      open={isDueDateDialogOpen}
+      onOpenChange={() => setIsDueDateDialogOpen(false)}
+    >
+      <Portal>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content>
+            <Dialog.Header>
+              <Dialog.Title>Nhập ngày đến hạn</Dialog.Title>
+              <Dialog.Description>
+                Vui lòng chọn ngày due date cho invoice
+              </Dialog.Description>
+            </Dialog.Header>
+            <Dialog.Body>
+              <Input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                min={new Date().toISOString().split("T")[0]}
+              />
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Button
+                variant="outline"
+                onClick={() => setIsDueDateDialogOpen(false)}
+                mr={3}
+              >
+                Hủy
+              </Button>
+              <Button
+                colorScheme="blue"
+                onClick={handleConfirmCreateInvoice}
+                loading={isCreating}
+              >
+                Xác nhận tạo
+              </Button>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Portal>
+    </Dialog.Root>
+  )
+
+  const handleCreateInvoice = (dueDate: string) => {
+    const accountName =
+      accounts.items.find((a) => a.id === accountIds)?.name || "Chưa chọn KH"
+    const projectName =
+      Object.values(projectsData)
+        .flat()
+        .find((p) => p.id === projectIds)?.name || "Chưa chọn DA"
+    const invoiceNo = ""
+
+    const baseData = {
+      invoice_name: `${accountName} - ${projectName} - ${invoiceNo}`,
+      invoice_no: invoiceNo,
+      sow_no: detail.sow.id,
+      project_name:
+        Object.values(projectsData)
+          .flat()
+          .find((p) => p.id === projectIds)?.name || "",
+      account_name: accounts.items.find((a) => a.id === accountIds)?.name || "",
+      status: "DRAFT" as const,
+      issue_date: selectedSchedules[0]?.startDate || new Date().toISOString(),
+      due_date: dueDate,
+      payment_date: "",
+    }
+
+    const invoiceData: typeof baseData & {
+      total: number
+      employees?: InvoiceEmployee[] | AdjustmentItem[]
+      positions?: InvoicePosition[]
+    } = {
+      ...baseData,
+      total: 0,
+    }
+
+    switch (detail.sow.type) {
+      case "T&M": {
+        if (selectedSchedules.length === 0) {
+          alert("Vui lòng chọn ít nhất một kỳ thanh toán")
+          return
+        }
+
+        if (calculationMode === "NORMAL") {
+          const employees = watch("employees")
+          const total = watch("total")
+
+          invoiceData.employees = employees
+          invoiceData.total = total
+        } else if (calculationMode === "FUTURE") {
+          invoiceData.employees = prevValues.current.employees
+          invoiceData.total = prevValues.current.total
+        }
+        break
+      }
+
+      case "FIXED PRICE": {
+        const fixedAmount = manualAmounts[detail.sow.id]
+        if (!fixedAmount || fixedAmount <= 0) {
+          alert("Vui lòng nhập số tiền hợp lệ")
+          return
+        }
+
+        invoiceData.positions = detail.sow.resourcePositions.map((p) => ({
+          code_unit: detail.sow.currency_code,
+          monthlyRate: p.monthlyRate || 0,
+          position: p.name,
+        }))
+
+        invoiceData.total = fixedAmount
+        break
+      }
+
+      case "MAINTENANCE": {
+        const maintenanceFee = manualAmounts[detail.sow.id]
+        if (!maintenanceFee || maintenanceFee <= 0) {
+          alert("Vui lòng nhập phí bảo trì")
+          return
+        }
+
+        invoiceData.total = maintenanceFee
+        break
+      }
+
+      default: {
+        alert("Loại hợp đồng không hợp lệ")
+        return
+      }
+    }
+
+    console.log("Invoice Data:", invoiceData)
+
+    setManualAmounts({})
+    setSelectedSchedules([])
   }
 
   return (
@@ -1216,9 +1624,18 @@ function InvoiceDetailCard({
 
       {renderSOWContent()}
 
-      <Button mt={4} onClick={handleCreateInvoice}>
-        Confirm
+      <Button
+        size="sm"
+        rounded={"lg"}
+        bg={buttonColor}
+        _hover={{ bg: buttonHoverColor }}
+        color={buttontextColor}
+        onClick={() => setIsDueDateDialogOpen(true)}
+        mt={5}
+      >
+        Continue
       </Button>
+      {renderDueDateDialog()}
     </Box>
   )
 }
